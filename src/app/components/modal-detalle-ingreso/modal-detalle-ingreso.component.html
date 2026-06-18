@@ -1,0 +1,45 @@
+<div mat-dialog-title class="d-flex justify-content-between align-items-center border-bottom pb-2">
+  <h2 class="m-0 text-primary fw-bold">Detalle del Ingreso</h2>
+  <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+</div>
+
+<mat-dialog-content class="pt-3">
+  <div *ngIf="data.ingreso">
+    <div class="bg-light p-3 rounded mb-3 border">
+      <div class="small text-muted text-uppercase fw-bold">Proveedor</div>
+      <div class="fs-5 mb-2">{{data.ingreso.proveedor.razonSocial}}</div>
+      <div class="d-flex justify-content-between">
+        <span><strong>Remito:</strong> {{data.ingreso.numeroRemito}}</span>
+        <span><strong>Fecha:</strong> {{data.ingreso.fecha | date:'dd/MM/yyyy'}}</span>
+      </div>
+    </div>
+
+    <h6 class="fw-bold mt-4">PRODUCTOS INGRESADOS</h6>
+    <div class="table-responsive border rounded mb-3">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr><th>Producto</th><th class="text-end">Cantidad</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of data.ingreso.items">
+            <td>{{item.producto.descripcion}}</td>
+            <td class="text-end fw-bold">{{item.cantidad}}</td>
+          </tr>
+        </tbody>
+        <tfoot class="table-group-divider">
+          <tr>
+            <td class="fw-bold">TOTAL UNIDADES</td>
+            <td class="text-end fs-5 fw-bold">{{data.ingreso.totalCantidad}}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="p-3 border-top bg-light">
+  <button mat-button mat-dialog-close>Cerrar</button>
+  <button mat-stroked-button color="primary" (click)="imprimirComprobante(data.ingreso)">
+    <mat-icon>print</mat-icon> Imprimir Comprobante
+  </button>
+</mat-dialog-actions>

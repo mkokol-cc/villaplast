@@ -1,0 +1,95 @@
+<div class="ingresos-container p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-6 fw-bold m-0">Historial de Ingresos de Mercadería</h1>
+    <div class="d-flex gap-2">
+      <button mat-flat-button color="primary" (click)="openNuevoIngreso()">
+        <mat-icon>add_circle</mat-icon> Nuevo Ingreso
+      </button>
+    </div>
+  </div>
+
+  <div class="header-section mb-4">
+    <!-- Filtros de Auditoría -->
+    <mat-card class="filter-card shadow-sm border-0 mt-3">
+      <mat-card-content class="pt-3">
+        <form [formGroup]="filterForm" class="row align-items-center">
+          <mat-form-field appearance="outline" class="col-md-3">
+            <mat-label>Proveedor</mat-label>
+            <mat-select formControlName="proveedor">
+              <mat-option *ngFor="let p of proveedores" [value]="p">{{p}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>Fecha Desde</mat-label>
+            <input matInput [matDatepicker]="pickerDesde" formControlName="fechaDesde">
+            <mat-datepicker-toggle matSuffix [for]="pickerDesde"></mat-datepicker-toggle>
+            <mat-datepicker #pickerDesde></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>Fecha Hasta</mat-label>
+            <input matInput [matDatepicker]="pickerHasta" formControlName="fechaHasta">
+            <mat-datepicker-toggle matSuffix [for]="pickerHasta"></mat-datepicker-toggle>
+            <mat-datepicker #pickerHasta></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-md-3">
+            <mat-label>Número de Remito</mat-label>
+            <input matInput formControlName="remito" placeholder="Ej: R-0001...">
+          </mat-form-field>
+
+          <div class="col-md-2 d-flex gap-2">
+            <button mat-flat-button color="primary" (click)="applyFilters()">Filtrar</button>
+            <button mat-button (click)="limpiarFiltros()">Limpiar</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="row">
+    <!-- Tabla Principal (siempre ocupa 12 columnas ahora) -->
+    <div class="col-md-12 transition-all">
+      <div class="mat-elevation-z2 rounded overflow-hidden">
+        <table mat-table [dataSource]="dataSource">
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef> Fecha </th>
+            <td mat-cell *matCellDef="let row"> {{row.fecha | date:'dd/MM/yyyy HH:mm'}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="proveedor">
+            <th mat-header-cell *matHeaderCellDef> Proveedor </th>
+            <td mat-cell *matCellDef="let row"> {{row.proveedor.razonSocial}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="remito">
+            <th mat-header-cell *matHeaderCellDef> Nº Remito </th>
+            <td mat-cell *matCellDef="let row"> <code class="fw-bold">{{row.numeroRemito}}</code> </td>
+          </ng-container>
+
+          <ng-container matColumnDef="cantidad">
+            <th mat-header-cell *matHeaderCellDef> Unidades </th>
+            <td mat-cell *matCellDef="let row"> {{row.totalCantidad}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="usuario">
+            <th mat-header-cell *matHeaderCellDef> Registró </th>
+            <td mat-cell *matCellDef="let row"> {{row.usuario}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef> </th>
+            <td mat-cell *matCellDef="let row">
+              <button mat-icon-button color="primary" (click)="verDetalle(row)" matTooltip="Ver detalle"><mat-icon>visibility</mat-icon></button>
+              <button mat-icon-button (click)="imprimirComprobante(row)" matTooltip="Imprimir"><mat-icon>print</mat-icon></button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="verDetalle(row)" class="clickable-row"></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

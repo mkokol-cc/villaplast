@@ -1,0 +1,106 @@
+.dashboard-container {
+  height: 100vh;
+  background-color: #f8f9fa; /* Fondo gris muy claro para no cansar la vista */
+
+  // Estilos base para el sidebar
+  .app-sidenav {
+    width: 280px;
+    transition: width 0.3s ease;
+    border-right: none;
+    background-color: #ffffff;
+    overflow-x: hidden;
+  }
+
+  // Estilos base para el contenido
+  mat-sidenav-content {
+    margin-left: 280px !important;
+    transition: margin-left 0.3s ease !important;
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Altura fija al viewport */
+    overflow: hidden; /* Evita el scroll infinito del body */
+  }
+
+  // CUANDO ESTÁ COLAPSADO
+  &.is-collapsed {
+    .app-sidenav {
+      width: 80px;
+
+      .menu-text, .logo-container span {
+        display: none;
+      }
+
+      .company-logo {
+        max-height: 40px;
+      }
+    }
+
+    mat-sidenav-content {
+      margin-left: 80px !important; // Ajustamos el margen al ancho pequeño
+    }
+  }
+}
+
+.logo-container {
+  background-color: #ffffff;
+  .company-logo {
+    max-height: 80px;
+    transition: max-height 0.3s ease;
+    object-fit: contain;
+  }
+}
+
+.menu-item {
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+
+  mat-icon {
+    font-size: 28px; /* Iconos más grandes para fácil identificación */
+    width: 28px;
+    height: 28px;
+    color: #5f6368;
+  }
+
+  .menu-text {
+    font-size: 1.2rem; /* Fuente más grande para legibilidad */
+    font-weight: 500;
+  }
+  
+  /* Asegura que el icono quede centrado si el texto desaparece */
+  mat-icon {
+    margin-right: 16px;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.active-link {
+  background-color: #e8f0fe !important;
+  color: #1a73e8 !important;
+  mat-icon {
+    color: #1a73e8 !important;
+  }
+}
+
+.main-toolbar {
+  background-color: #ffffff !important;
+  color: #333 !important;
+  height: 70px;
+  min-height: 70px;
+}
+
+.breadcrumb-container {
+  font-size: 1.1rem;
+  .breadcrumb-separator {
+    font-size: 20px;
+    margin: 0 5px;
+    color: #999;
+  }
+  .breadcrumb-active {
+    font-weight: bold;
+    color: #1a73e8;
+  }
+}

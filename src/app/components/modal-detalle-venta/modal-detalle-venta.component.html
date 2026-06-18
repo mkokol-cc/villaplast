@@ -1,0 +1,56 @@
+<div mat-dialog-title class="d-flex justify-content-between align-items-center border-bottom pb-2">
+  <h2 class="m-0 text-success fw-bold">Comprobante de Venta #{{data.venta.id}}</h2>
+  <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+</div>
+
+<mat-dialog-content class="pt-3">
+  <div class="row mb-3 bg-light p-3 rounded mx-0 border">
+    <div class="col-md-4">
+      <label class="small text-muted d-block fw-bold">FECHA Y HORA</label>
+      <span>{{data.venta.fecha | date:'dd/MM/yyyy HH:mm'}}</span>
+    </div>
+    <div class="col-md-4">
+      <label class="small text-muted d-block fw-bold">CLIENTE</label>
+      <span class="fw-bold text-primary">{{data.venta.cliente?.razonSocial || 'Consumidor Final'}}</span>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <label class="small text-muted d-block fw-bold">ESTADO</label>
+      <span class="badge bg-success">Completada</span>
+    </div>
+  </div>
+
+  <h6 class="fw-bold mb-2 text-uppercase small text-muted">Artículos Vendidos</h6>
+  <div class="table-responsive border rounded mb-3">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr><th>Producto</th><th class="text-center">Cant.</th><th class="text-end">Subtotal</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of data.venta.items">
+          <td>{{item.producto.descripcion}}</td>
+          <td class="text-center">{{item.cantidad}}</td>
+          <td class="text-end fw-bold">{{item.subtotal | currency}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-end p-3 bg-light border rounded">
+    <div>
+      <label class="small text-muted d-block fw-bold mb-1">MÉTODOS DE PAGO</label>
+      <mat-chip-set>
+        <mat-chip *ngFor="let p of data.venta.pagos">{{p.medioPago}}: {{p.importe | currency}}</mat-chip>
+      </mat-chip-set>
+    </div>
+    <div class="text-end">
+      <div class="small text-muted fw-bold">TOTAL VENTA</div>
+      <div class="fs-2 fw-bold text-success">{{data.venta.total | currency}}</div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="p-3 border-top bg-light">
+  <button mat-button mat-dialog-close>Cerrar</button>
+  <button mat-stroked-button color="primary" (click)="imprimirComprobante()"><mat-icon>print</mat-icon> Recibo</button>
+  <button mat-stroked-button (click)="reimprimirTicket()"><mat-icon>receipt</mat-icon> Ticket</button>
+</mat-dialog-actions>

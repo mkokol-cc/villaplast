@@ -1,0 +1,28 @@
+.transition-all {
+    transition: all 0.3s ease-in-out;
+}
+
+.clickable-row {
+    cursor: pointer;
+    &:hover {
+        background-color: #f8f9fa;
+    }
+}
+
+.active-row {
+    background-color: #e3f2fd !important;
+}
+
+.detail-card {
+    position: sticky;
+    top: 20px;
+}
+
+table {
+    width: 100%;
+    background: white;
+}
+
+code {
+    font-size: 0.9rem;
+}

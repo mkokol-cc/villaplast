@@ -1,0 +1,64 @@
+<mat-sidenav-container class="dashboard-container">
+  <!-- Sidebar / Sidenav -->
+  <mat-sidenav #sidenav mode="side" opened class="app-sidenav shadow-sm">
+    <!-- Espacio para el Logo -->
+    <div class="logo-container d-flex align-items-center justify-content-center py-4">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_dp9-jfX9tNVWCZsZfKvs7gq-cgGQevmJ9Q&s" alt="Logo Empresa" class="img-fluid company-logo">
+    </div>
+
+    <mat-nav-list class="px-2">
+      <!-- Los items del menú son grandes y con iconos descriptivos para máxima claridad -->
+      <a mat-list-item routerLink="/home" routerLinkActive="active-link" class="menu-item py-3">
+        <mat-icon matListItemIcon>home</mat-icon>
+        <span matListItemTitle class="menu-text">Inicio</span>
+      </a>
+      <a mat-list-item routerLink="/clientes" routerLinkActive="active-link" class="menu-item py-3">
+        <mat-icon matListItemIcon>people</mat-icon>
+        <span matListItemTitle class="menu-text">Clientes</span>
+      </a>
+      <a mat-list-item routerLink="/ventas" routerLinkActive="active-link" class="menu-item py-3">
+        <mat-icon matListItemIcon>people</mat-icon>
+        <span matListItemTitle class="menu-text">Ventas</span>
+      </a>
+      <a mat-list-item routerLink="/stock" routerLinkActive="active-link" class="menu-item py-3">
+        <mat-icon matListItemIcon>shopping_cart</mat-icon>
+        <span matListItemTitle class="menu-text">Stock</span>
+      </a>
+      <a mat-list-item routerLink="/proveedores" routerLinkActive="active-link" class="menu-item py-3">
+        <mat-icon matListItemIcon>shopping_cart</mat-icon>
+        <span matListItemTitle class="menu-text">Proveedores</span>
+      </a>
+      <a mat-list-item routerLink="/remitos" routerLinkActive="active-link" class="menu-item py-3">
+        <mat-icon matListItemIcon>shopping_cart</mat-icon>
+        <span matListItemTitle class="menu-text">Ingresos</span>
+      </a>
+      <a mat-list-item routerLink="/configuracion" routerLinkActive="active-link" class="menu-item py-3">
+        <mat-icon matListItemIcon>settings</mat-icon>
+        <span matListItemTitle class="menu-text">Ajustes</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- Contenedor Principal -->
+  <mat-sidenav-content>
+    <!-- Nav Superior con Breadcrumb -->
+    <mat-toolbar color="primary" class="main-toolbar shadow-sm mb-3">
+      <button mat-icon-button (click)="sidenav.toggle()" class="d-none" aria-label="Abrir menú">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <div class="ms-3 d-flex align-items-center breadcrumb-container">
+        <span class="breadcrumb-item">Panel</span>
+        <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+        <span class="breadcrumb-active">Página Actual</span>
+      </div>
+    </mat-toolbar>
+
+    <!-- Contenido Dinámico -->
+    <main class="container-fluid px-4 flex-fill overflow-auto d-flex flex-column">
+      <div class="h-100">
+          <router-outlet />
+      </div>
+      
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

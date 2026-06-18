@@ -1,0 +1,39 @@
+<div mat-dialog-title class="d-flex justify-content-between align-items-center border-bottom pb-2">
+  <h2 class="m-0 text-accent fw-bold">Ficha de Cliente</h2>
+  <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+</div>
+
+<mat-dialog-content class="pt-3">
+  <div class="mb-4 text-center text-md-start">
+    <h3 class="fs-3 fw-bold mb-0 text-primary">{{data.cliente.razonSocial}}</h3>
+    <p class="text-muted"><mat-icon inline>person</mat-icon> Cliente Particular / Cuenta Corriente</p>
+  </div>
+
+  <div class="bg-primary-subtle border border-primary-subtle rounded p-3 mb-4 d-flex justify-content-between align-items-center">
+    <div>
+      <div class="small text-primary-emphasis text-uppercase fw-bold">Saldo Adeudado</div>
+      <div class="fs-1 fw-bold text-primary">$0.00</div>
+    </div>
+    <button mat-flat-button color="accent" (click)="registrarCobro(data.cliente)">COBRAR</button>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6 border-end">
+      <label class="small text-muted fw-bold d-block text-uppercase">Información Fiscal</label>
+      <p class="mb-1"><strong>DNI/CUIT:</strong> {{data.cliente.cuitDni}}</p>
+      <p class="mb-1"><strong>Tel:</strong> {{data.cliente.telefono || 'N/A'}}</p>
+      <p class="mb-0"><strong>Dir:</strong> {{data.cliente.direccion || 'No registrada'}}</p>
+    </div>
+    <div class="col-md-6 ps-md-4">
+      <label class="small text-muted fw-bold d-block text-uppercase">Estadísticas</label>
+      <p class="mb-1"><strong>Total Compras:</strong> {{data.cliente.cantidadCompras || 0}}</p>
+      <p class="mb-0"><strong>Último Mov:</strong> {{data.cliente.ultimaCompra | date:'dd/MM/yyyy' || '-'}}</p>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="p-3 border-top bg-light">
+  <button mat-button mat-dialog-close>Cerrar</button>
+  <button mat-button (click)="imprimirEstadoCuenta()">IMPRIMIR ESTADO</button>
+  <button mat-flat-button color="primary" (click)="editarCliente(data.cliente)">EDITAR FICHA</button>
+</mat-dialog-actions>

@@ -1,0 +1,106 @@
+<div class="ventas-container p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-6 fw-bold m-0">Historial de Ventas</h1>
+    <div class="d-flex gap-2">
+      <!-- Aquí puedes añadir botones de acción globales para ventas, si los hay -->
+      <!-- <button mat-flat-button color="primary"><mat-icon>add</mat-icon> Nueva Venta</button> -->
+    </div>
+  </div>
+
+  <div class="header-section mb-4">
+    <!-- Panel de Filtros Superiores -->
+    <mat-card class="filter-card shadow-sm border-0 mt-3">
+      <mat-card-content class="pt-3">
+        <form [formGroup]="filterForm" class="row g-3 align-items-center">
+          <mat-form-field appearance="outline" class="col-md-3">
+            <mat-label>Cliente</mat-label>
+            <input matInput formControlName="cliente" placeholder="Nombre o CUIT">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>Fecha Desde</mat-label>
+            <input matInput [matDatepicker]="pickerDesde" formControlName="fechaDesde">
+            <mat-datepicker-toggle matSuffix [for]="pickerDesde"></mat-datepicker-toggle>
+            <mat-datepicker #pickerDesde></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>Fecha Hasta</mat-label>
+            <input matInput [matDatepicker]="pickerHasta" formControlName="fechaHasta">
+            <mat-datepicker-toggle matSuffix [for]="pickerHasta"></mat-datepicker-toggle>
+            <mat-datepicker #pickerHasta></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>Estado Factura</mat-label>
+            <mat-select formControlName="estadoFacturacion">
+              <mat-option value="">Todos</mat-option>
+              <mat-option *ngFor="let est of estadosVenta" [value]="est">{{est}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div class="col-md-3 d-flex gap-2">
+            <button mat-flat-button color="primary" (click)="applyFilters()">Filtrar</button>
+            <button mat-button (click)="limpiarFiltros()">Limpiar</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="row g-4">
+    <!-- TABLA PRINCIPAL (siempre ocupa 12 columnas ahora) -->
+    <div class="col-md-12 transition-all">
+      <div class="mat-elevation-z2 rounded overflow-hidden">
+        <table mat-table [dataSource]="dataSource" class="w-100">
+          <ng-container matColumnDef="numeroVenta">
+            <th mat-header-cell *matHeaderCellDef> Nº Venta </th>
+            <td mat-cell *matCellDef="let v"> <span class="fw-bold">#{{v.id}}</span> </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef> Fecha </th>
+            <td mat-cell *matCellDef="let v"> {{v.fecha | date:'dd/MM/yyyy HH:mm'}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="cliente">
+            <th mat-header-cell *matHeaderCellDef> Cliente </th>
+            <td mat-cell *matCellDef="let v"> {{v.cliente?.razonSocial || 'Consumidor Final'}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="cantidad">
+            <th mat-header-cell *matHeaderCellDef> Items </th>
+            <td mat-cell *matCellDef="let v"> {{getCantidadItems(v)}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef> Total </th>
+            <td mat-cell *matCellDef="let v" class="fw-bold"> {{v.total | currency:'ARS'}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="estadoPago">
+            <th mat-header-cell *matHeaderCellDef> Pago </th>
+            <td mat-cell *matCellDef="let v">
+              <span class="badge-status" [ngClass]="getEstadoPago(v).toLowerCase()">{{getEstadoPago(v)}}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="estadoFacturacion">
+            <th mat-header-cell *matHeaderCellDef> Factura </th>
+            <td mat-cell *matCellDef="let v"> {{v.estado}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef> </th>
+            <td mat-cell *matCellDef="let v" class="text-end">
+              <button mat-icon-button color="primary" (click)="openVentaDetails(v)" matTooltip="Ver detalle"><mat-icon>visibility</mat-icon></button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openVentaDetails(row)" class="clickable-row"></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

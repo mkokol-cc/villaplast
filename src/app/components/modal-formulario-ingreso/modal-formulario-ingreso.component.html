@@ -1,0 +1,67 @@
+<div mat-dialog-title class="d-flex justify-content-between align-items-center border-bottom pb-2">
+  <h2 class="m-0 text-primary fw-bold">Registrar Ingreso de Mercadería</h2>
+  <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+</div>
+
+<mat-dialog-content class="pt-3">
+  <form [formGroup]="ingresoForm">
+    <div class="row g-3">
+      <mat-form-field appearance="outline" class="col-md-6">
+        <mat-label>Proveedor</mat-label>
+        <mat-select formControlName="proveedor">
+          <mat-option *ngFor="let p of proveedores" [value]="p">{{p}}</mat-option>
+        </mat-select>
+        <mat-error>El proveedor es requerido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-6">
+        <mat-label>Número de Remito</mat-label>
+        <input matInput formControlName="numeroRemito" placeholder="Ej: R-0001-000456">
+        <mat-error>El número de remito es requerido</mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-divider class="my-4"></mat-divider>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="m-0 fs-5 fw-bold text-secondary">Productos del Remito</h3>
+      <button mat-stroked-button color="primary" type="button" (click)="addItem()">
+        <mat-icon>add</mat-icon> Agregar Producto
+      </button>
+    </div>
+
+    <div formArrayName="items">
+      <div *ngFor="let item of items.controls; let i=index" [formGroupName]="i" 
+           class="row g-2 align-items-center mb-2 border rounded p-2 bg-light mx-0 shadow-sm">
+        <mat-form-field appearance="fill" class="col-md-7">
+          <mat-label>Producto</mat-label>
+          <mat-select formControlName="producto">
+            <mat-option *ngFor="let prod of productos" [value]="prod">
+              {{prod.codigoInterno}} - {{prod.descripcion}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="col-md-3">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" formControlName="cantidad">
+        </mat-form-field>
+
+        <div class="col-md-2 text-end">
+          <button mat-icon-button color="warn" type="button" (click)="removeItem(i)" 
+                  [disabled]="items.length === 1" matTooltip="Quitar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="p-3 border-top bg-light">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="save()" 
+          [disabled]="ingresoForm.invalid || items.length === 0">
+    Guardar Ingreso
+  </button>
+</mat-dialog-actions>

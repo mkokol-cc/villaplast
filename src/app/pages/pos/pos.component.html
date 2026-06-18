@@ -1,0 +1,87 @@
+<div class="pos-wrapper container-fluid h-100 py-3">
+  <div class="row h-100 g-4">
+    
+    <!-- COLUMNA IZQUIERDA: BUSCADOR Y CATALOGO -->
+    <div class="col-md-8 d-flex flex-column h-100">
+      
+      <!-- Buscador con Autocomplete -->
+      <div class="search-box mb-4">
+        <mat-form-field appearance="outline" class="w-100 large-input">
+          <mat-label>Escriba el nombre o use el lector de barras</mat-label>
+          <input type="text" matInput [formControl]="searchControl" [matAutocomplete]="auto">
+          <mat-icon matSuffix>qr_code_scanner</mat-icon>
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addToCart($event.option.value)">
+            <mat-option *ngFor="let product of filteredProducts | async" [value]="product">
+              <div class="d-flex align-items-center py-2">
+                <img [src]="product.imagenUrl" class="search-thumb me-3" *ngIf="product.imagenUrl">
+                <div class="flex-grow-1">
+                  <div class="fw-bold">{{product.descripcion}}</div>
+                  <small class="text-muted">{{product.codigoBarra || product.codigoInterno}}</small>
+                </div>
+                <div class="fw-bold text-primary fs-5">${{product.precioVenta}}</div>
+              </div>
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+
+      <!-- Catálogo Minimalista -->
+      <div class="catalog-grid flex-fill overflow-auto">
+        <div class="row row-cols-2 row-cols-lg-4 g-3">
+          <div class="col" *ngFor="let product of products">
+            <div class="product-card card h-100 shadow-sm border-0" (click)="addToCart(product)">
+              <div class="img-container p-3 text-center">
+                <img [src]="product.imagenUrl" [alt]="product.descripcion" class="img-fluid" *ngIf="product.imagenUrl">
+              </div>
+              <div class="card-body text-center p-2">
+                <div class="product-name text-truncate">{{product.descripcion}}</div>
+                <div class="product-price fw-bold text-primary">${{product.precioVenta}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA DERECHA: TICKET / DETALLE -->
+    <div class="col-md-4 h-100">
+      <div class="ticket-card card h-100 shadow border-0">
+        <div class="card-header bg-white py-3 border-0">
+          <h3 class="mb-0 fw-bold d-flex align-items-center">
+            <mat-icon class="me-2 text-primary">receipt_long</mat-icon> Detalle de Compra
+          </h3>
+        </div>
+        
+        <div class="card-body overflow-auto flex-grow-1 p-0">
+          <mat-list class="cart-list">
+            <mat-list-item *ngFor="let item of cart" class="cart-item-row h-auto py-3">
+              <div class="d-flex w-100 align-items-center justify-content-between px-3">
+                <div style="max-width: 50%;">
+                  <div class="fw-bold fs-5 line-height-1 text-truncate">{{item.producto.descripcion}}</div>
+                  <small class="text-muted">${{item.precioUnitario}} unit.</small>
+                </div>
+                <div class="quantity-picker d-flex align-items-center">
+                  <button mat-icon-button (click)="updateQuantity(item, -1)" color="warn" class="btn-qty"><mat-icon>remove_circle_outline</mat-icon></button>
+                  <span class="mx-2 fw-bold fs-4">{{item.cantidad}}</span>
+                  <button mat-icon-button (click)="updateQuantity(item, 1)" color="primary" class="btn-qty"><mat-icon>add_circle_outline</mat-icon></button>
+                </div>
+                <div class="fw-bold fs-5 text-end" style="min-width: 80px;">
+                  ${{item.subtotal}}
+                </div>
+              </div>
+              <mat-divider></mat-divider>
+            </mat-list-item>
+          </mat-list>
+        </div>
+
+        <div class="card-footer bg-light p-4 border-0">
+          <div class="d-flex justify-content-between mb-4 mt-2">
+            <span class="fs-3 fw-light">TOTAL</span>
+            <span class="fs-1 fw-bold text-success">${{getTotal()}}</span>
+          </div>
+          <button mat-flat-button color="primary" class="w-100 py-4 fs-2 rounded-3 shadow" [disabled]="cart.length === 0">COBRAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

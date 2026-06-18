@@ -1,0 +1,45 @@
+<div mat-dialog-title class="d-flex justify-content-between align-items-center border-bottom pb-2">
+  <h2 class="m-0 text-primary fw-bold">Detalle de Proveedor</h2>
+  <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+</div>
+
+<mat-dialog-content class="pt-3">
+  <div class="mb-4">
+    <h3 class="fs-4 fw-bold mb-1">{{data.proveedor.razonSocial}}</h3>
+    <span class="badge bg-primary-subtle text-primary">Proveedor Activo</span>
+  </div>
+
+  <div class="bg-light rounded p-3 mb-4 d-flex justify-content-between align-items-center border">
+    <div>
+      <div class="small text-muted text-uppercase fw-bold">Saldo Pendiente</div>
+      <div class="fs-2 fw-bold text-danger">$0.00</div>
+    </div>
+    <button mat-flat-button color="warn" (click)="registrarPago(data.proveedor)">PAGAR</button>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="d-block small text-muted fw-bold text-uppercase">CUIT / DNI</label>
+      <p class="mb-0">{{data.proveedor.cuit}}</p>
+    </div>
+    <div class="col-md-6">
+      <label class="d-block small text-muted fw-bold text-uppercase">Teléfono</label>
+      <p class="mb-0">{{data.proveedor.telefono || 'Sin teléfono'}}</p>
+    </div>
+    <div class="col-12">
+      <label class="d-block small text-muted fw-bold text-uppercase">Dirección</label>
+      <p class="mb-0">{{data.proveedor.direccion || 'No especificada'}}</p>
+    </div>
+    <div class="col-12">
+      <mat-divider class="my-2"></mat-divider>
+      <label class="d-block small text-muted fw-bold text-uppercase">Observaciones</label>
+      <p class="text-secondary fst-italic mb-0">{{data.proveedor.observaciones || 'Sin observaciones.'}}</p>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="p-3 border-top bg-light">
+  <button mat-button mat-dialog-close>Cerrar</button>
+  <button mat-button (click)="verHistorial(data.proveedor)">VER HISTORIAL</button>
+</mat-dialog-actions>
+
