@@ -1,16 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { BuscadorProductoComponent } from '../../components/buscador-producto/buscador-producto.component';
+import { ListaProductosComponent } from '../../components/lista-productos/lista-productos.component';
 import { Producto } from '../../model/Producto';
 import { DetalleVenta } from '../../model/DetalleVenta';
 
@@ -20,9 +17,8 @@ import { DetalleVenta } from '../../model/DetalleVenta';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatAutocompleteModule,
-    MatFormFieldModule,
-    MatInputModule,
+    BuscadorProductoComponent,
+    ListaProductosComponent,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
@@ -33,8 +29,6 @@ import { DetalleVenta } from '../../model/DetalleVenta';
   styleUrl: './pos.component.scss'
 })
 export class PosComponent implements OnInit {
-  searchControl = new FormControl('');
-  
   // Mock de datos adaptado a la interfaz Producto
   products: Producto[] = [
     { id: 1, codigoInterno: 'PAN001', descripcion: 'Pan Artesanal', codigoBarra: '779123456', precioVenta: 1200, stockActual: 20, activo: true, imagenUrl: 'https://cdn-icons-png.flaticon.com/512/2821/2821804.png' },
@@ -53,24 +47,10 @@ export class PosComponent implements OnInit {
     { id: 14, codigoInterno: 'PAP001', descripcion: 'Papel Higiénico', codigoBarra: '779707070', precioVenta: 1600, stockActual: 22, activo: true, imagenUrl: 'https://cdn-icons-png.flaticon.com/512/2360/2360060.png' },
   ];
 
-  filteredProducts!: Observable<Producto[]>;
+  
   cart: DetalleVenta[] = [];
 
-  ngOnInit() {
-    this.filteredProducts = this.searchControl.valueChanges.pipe(
-      startWith(''),
-      map(value => typeof value === 'string' ? this._filter(value) : [])
-    );
-  }
-
-  private _filter(name: string): Producto[] {
-    const filterValue = name.toLowerCase();
-    return this.products.filter(p => 
-      p.descripcion.toLowerCase().includes(filterValue) || 
-      p.codigoBarra?.includes(filterValue) ||
-      p.codigoInterno.toLowerCase().includes(filterValue)
-    );
-  }
+  ngOnInit(): void {}
 
   addToCart(product: Producto) {
     const item = this.cart.find(i => i.producto.id === product.id);
@@ -87,7 +67,19 @@ export class PosComponent implements OnInit {
         subtotal: product.precioVenta
       }); 
     }
-    this.searchControl.setValue('');
+    // input cleared by child component after selection
+  }
+
+  onProductCreated(product: Producto) {
+    // agregar al listado de productos y añadir al carrito inmediatamente
+    this.products.push(product);
+    this.addToCart(product);
+  }
+
+  handleChangeQuantity(event: { item: DetalleVenta; delta: number }) {
+    if (event && event.item) {
+      this.updateQuantity(event.item, event.delta);
+    }
   }
 
   updateQuantity(item: DetalleVenta, delta: number) {

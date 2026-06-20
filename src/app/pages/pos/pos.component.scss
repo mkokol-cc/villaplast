@@ -1,5 +1,5 @@
 .pos-wrapper {
-    height: 100%; /* Ocupa el 100% del contenedor 'main' del dashboard */
+    height: 100%;
     background-color: #f8f9fa;
 
     .large-input {
@@ -10,63 +10,46 @@
         }
     }
 
-    .search-thumb {
-        width: 30px; /* Tamaño más pequeño para las imágenes del autocomplete */
-        height: 30px;
-        object-fit: contain;
-    }
-
+    /* Catálogo */
     .catalog-grid {
+        overflow-x: hidden; /* evita scroll horizontal cuando hay gutters */
+
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .col {
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+        }
+
         .product-card {
             cursor: pointer;
-            border-radius: 15px;
-            transition: transform 0.1s;
-            &:active { transform: scale(0.95); }
-            
+            border-radius: 12px;
+            transition: transform 0.12s ease;
+            min-width: 0;
+
             .img-container {
-                height: 100px;
+                height: 90px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                img { max-height: 80px; }
+
+                img { max-height: 72px; max-width: 100%; }
             }
 
-            .product-name { font-size: 1.1rem; color: #444; }
-            .product-price { font-size: 1.3rem; }
+            .product-name { font-size: 1rem; color: #444; }
+            .product-price { font-size: 1.15rem; }
         }
     }
 
-    .ticket-card {
-        border-radius: 20px;
-        .cart-list {
-            .cart-item-row {
-                transition: background 0.2s;
-                &:hover { background: #f0f4ff; }
-            }
-        }
-    }
-
-    .btn-qty {
-        transform: scale(1.3); // Botones +/- mucho mas grandes
-    }
+    /* Ticket / detalle */
+    .ticket-card { border-radius: 16px; }
 
     .line-height-1 { line-height: 1; }
 }
 
-// Estilos para las opciones del buscador (global scope)
-::ng-deep .mat-mdc-autocomplete-panel {
-    max-height: 400px !important;
-    border-radius: 12px !important;
-    margin-top: 10px;
-}
-
-::ng-deep .mat-mdc-option {
-    height: auto !important;
-    min-height: 60px;
-}
-
-// Scrollbar elegante
+/* Scrollbar elegante (global-ish) */
 .overflow-auto::-webkit-scrollbar { width: 6px; }
-.overflow-auto::-webkit-scrollbar-thumb { 
-    background: #ccc; border-radius: 10px; 
-}
+.overflow-auto::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }

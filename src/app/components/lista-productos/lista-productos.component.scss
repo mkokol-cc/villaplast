@@ -1,0 +1,31 @@
+/* Estilos encapsulados para la lista de productos (ticket) */
+.cart-list { overflow-x: hidden; }
+
+.cart-item-row {
+	transition: background 0.12s;
+	padding: 0.35rem 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.cart-item-row:hover { background: #f7f9ff; }
+
+.product-info { flex: 1 1 auto; min-width: 0; }
+
+.product-title {
+	font-size: 0.95rem;
+	line-height: 1.05;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 35ch;
+}
+
+.subtotal { flex: 0 0 80px; width: 80px; font-size: 0.95rem; text-align: right; }
+
+.quantity-picker { flex: 0 0 110px; width: 110px; justify-content: flex-end; display: flex; align-items: center; gap: 0.25rem; }
+
+.btn-qty { transform: scale(1.05); }
+.qty-number { font-size: 1rem; min-width: 24px; text-align: center; display: inline-block; }
+

@@ -1,0 +1,19 @@
+<div class="cart-root">
+	<mat-list class="cart-list p-0">
+		<mat-list-item *ngFor="let item of cart" class="cart-item-row h-auto border-bottom">
+			<div class="d-flex w-100 align-items-center justify-content-between px-2">
+				<div class="product-info pe-2">
+					<div class="fw-bold product-title text-truncate">{{item.producto.descripcion}}</div>
+					<small class="text-muted"><span class="fw-bold m-0 text-primary">${{item.subtotal}}</span> (${{item.precioUnitario}} x {{item.cantidad}})</small>
+				</div>
+
+				<div class="quantity-picker d-flex align-items-center">
+					<button mat-icon-button (click)="onChange(item, -1)" color="warn" class="btn-qty"><mat-icon>remove_circle_outline</mat-icon></button>
+					<span class="mx-1 fw-bold qty-number">{{item.cantidad}}</span>
+					<button mat-icon-button (click)="onChange(item, 1)" color="primary" class="btn-qty"><mat-icon>add_circle_outline</mat-icon></button>
+				</div>
+			</div>
+			<mat-divider></mat-divider>
+		</mat-list-item>
+	</mat-list>
+</div>

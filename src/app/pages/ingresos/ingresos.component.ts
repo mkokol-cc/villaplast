@@ -16,7 +16,7 @@ import { DatePipe } from '@angular/common'; // Import DatePipe
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Proveedor } from '../../model/Proveedor';
-import { Producto } from '../../model/Producto';
+import { Producto, PRODUCTOS_MOCK } from '../../model/Producto';
 import { ModalDetalleIngresoComponent } from '../../components/modal-detalle-ingreso/modal-detalle-ingreso.component';
 import { ModalFormularioIngresoComponent } from '../../components/modal-formulario-ingreso/modal-formulario-ingreso.component';
 
@@ -73,11 +73,7 @@ export class IngresosComponent implements OnInit {
   proveedores: string[] = ['Distribuidora Villaplast', 'Papelera Norte', 'Insumos Pro'];
   
   // Mock de productos para la selección en el formulario
-  productosMock: Producto[] = [
-    { id: 101, descripcion: 'Bolsas de Consorcio 60x90', stockActual: 500, activo: true, codigoInterno: 'B01' } as Producto,
-    { id: 102, descripcion: 'Papel Higiénico Premium x4', stockActual: 200, activo: true, codigoInterno: 'P05' } as Producto,
-    { id: 103, descripcion: 'Rollo de Cocina x3', stockActual: 300, activo: true, codigoInterno: 'R02' } as Producto
-  ];
+  productosMock: Producto[] = PRODUCTOS_MOCK;
 
   private ingresosMock: Ingreso[] = [
     {

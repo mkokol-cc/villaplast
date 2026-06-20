@@ -10,6 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Producto } from '../../model/Producto';
+import { BuscadorProductoComponent } from '../buscador-producto/buscador-producto.component';
+import { ListaProductosComponent } from '../lista-productos/lista-productos.component';
+import { DetalleVenta } from '../../model/DetalleVenta';
 
 @Component({
   selector: 'app-modal-formulario-ingreso',
@@ -18,13 +21,15 @@ import { Producto } from '../../model/Producto';
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
+    BuscadorProductoComponent,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
     MatDividerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    ListaProductosComponent
   ],
   templateUrl: './modal-formulario-ingreso.component.html',
   styleUrl: './modal-formulario-ingreso.component.scss'
@@ -32,7 +37,8 @@ import { Producto } from '../../model/Producto';
 export class ModalFormularioIngresoComponent implements OnInit {
   ingresoForm: FormGroup;
   proveedores: string[];
-  productos: Producto[];
+  products: Producto[] = [];
+  cart: DetalleVenta[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -40,7 +46,7 @@ export class ModalFormularioIngresoComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: { proveedores: string[], productos: Producto[] }
   ) {
     this.proveedores = data.proveedores;
-    this.productos = data.productos;
+    this.products = data.productos;
 
     this.ingresoForm = this.fb.group({
       proveedor: ['', Validators.required],
@@ -69,6 +75,29 @@ export class ModalFormularioIngresoComponent implements OnInit {
     this.items.removeAt(index);
   }
 
+  addProductToItems(product: Producto) {
+    // si ya existe, aumentar cantidad
+    const existingIndex = this.items.controls.findIndex(ctrl => ctrl.value.producto?.id === product.id);
+    if (existingIndex > -1) {
+      const ctrl = this.items.at(existingIndex);
+      const newQty = (ctrl.value.cantidad || 0) + 1;
+      ctrl.patchValue({ cantidad: newQty, producto: product });
+    } else {
+      const itemForm = this.fb.group({
+        producto: [product, Validators.required],
+        cantidad: [1, [Validators.required, Validators.min(1)]]
+      });
+      this.items.push(itemForm);
+    }
+  }
+
+  onRowProductSelected(product: Producto, index: number) {
+    const ctrl = this.items.at(index);
+    if (ctrl) {
+      ctrl.patchValue({ producto: product });
+    }
+  }
+
   save() {
     if (this.ingresoForm.invalid) return;
     this.dialogRef.close(this.ingresoForm.value);
@@ -77,4 +106,41 @@ export class ModalFormularioIngresoComponent implements OnInit {
   cancel() {
     this.dialogRef.close();
   }
+
+
+  handleChangeQuantity(event: { item: DetalleVenta; delta: number }) {
+    if (event && event.item) {
+      this.updateQuantity(event.item, event.delta);
+    }
+  }
+  updateQuantity(item: DetalleVenta, delta: number) {
+    item.cantidad += delta;
+    item.subtotal = item.cantidad * item.precioUnitario;
+    if (item.cantidad <= 0) {
+      this.cart = this.cart.filter(i => i !== item);
+    }
+  }
+  addToCart(product: Producto) {
+    const item = this.cart.find(i => i.producto.id === product.id);
+    if (item) { 
+      item.cantidad++; 
+      item.subtotal = item.cantidad * item.precioUnitario;
+    } 
+    else { 
+      this.cart.push({ 
+        id: 0, 
+        producto: product, 
+        cantidad: 1, 
+        precioUnitario: product.precioVenta,
+        subtotal: product.precioVenta
+      }); 
+    }
+    // input cleared by child component after selection
+  }
+  onProductCreated(product: Producto) {
+    // agregar al listado de productos y añadir al carrito inmediatamente
+    this.products.push(product);
+    this.addToCart(product);
+  }
+
 }
