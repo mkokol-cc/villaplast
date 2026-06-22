@@ -1,0 +1,18 @@
+<mat-form-field appearance="outline" class="w-100 large-input buscador-producto">
+	<mat-label>Proveedor</mat-label>
+	<input type="text" matInput [formControl]="searchControl" [matAutocomplete]="auto" [value]="''" [attr.autocomplete]="'off'">
+	<button mat-icon-button matSuffix type="button" title="Nuevo proveedor" (click)="openNewProveedor($event)">
+		<mat-icon>add</mat-icon>
+	</button>
+
+	<mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event.option.value)" [displayWith]="displayFn.bind(this)">
+		<mat-option *ngFor="let prov of filteredProveedores | async" [value]="prov">
+			<div class="d-flex align-items-center py-1">
+				<div class="flex-grow-1">
+					<div class="fw-bold">{{prov.razonSocial}}</div>
+					<small class="text-muted">CUIT: {{prov.cuit || '—'}} • Tel: {{prov.telefono || '—'}}</small>
+				</div>
+			</div>
+		</mat-option>
+	</mat-autocomplete>
+</mat-form-field>

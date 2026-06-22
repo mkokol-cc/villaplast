@@ -14,11 +14,15 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { Producto } from '../../model/Producto';
+import { MatPaginator, MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
+import { CATEGORIAS_MOCK, Producto, PRODUCTOS_MOCK } from '../../model/Producto';
+import { BuscadorCategoriaComponent } from '../../components/buscador-categoria/buscador-categoria.component';
+import { BuscadorProveedorComponent } from '../../components/buscador-proveedor/buscador-proveedor.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ModalFormularioProductoComponent } from '../../components/modal-formulario-producto/modal-formulario-producto.component';
 import { ModalFormularioIngresoComponent } from '../../components/modal-formulario-ingreso/modal-formulario-ingreso.component';
-import { Proveedor } from '../../model/Proveedor';
+import { Proveedor, PROVEEDORES_MOCK } from '../../model/Proveedor';
+import { INGRESOS_MOCK } from '../ingresos/ingresos.component';
 
 interface DetalleIngreso {
   producto: Producto;
@@ -54,60 +58,46 @@ interface Ingreso {
     MatTooltipModule,
     MatChipsModule,
     MatSortModule,
-    MatDialogModule
+    MatDialogModule,
+    MatPaginatorModule,
+    BuscadorCategoriaComponent,
+    BuscadorProveedorComponent
   ],
   templateUrl: './stock.component.html',
   styleUrl: './stock.component.scss'
 })
 export class StockComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   searchControl = new FormControl('');
   filterForm = new FormGroup({
     categoria: new FormControl(''),
-    proveedor: new FormControl(''),
+    proveedor: new FormControl<Proveedor | string | null>(''),
     soloStockBajo: new FormControl(false)
   });
 
-  displayedColumns: string[] = ['imagen', 'codigoInterno', 'descripcion', 'stockActual', 'precioVenta', 'estado', 'acciones'];
+  displayedColumns: string[] = ['imagen', 'codigoBarra', 'descripcion', 'stockActual', 'precioVenta', 'proveedorNombre', 'acciones'];
   dataSource = new MatTableDataSource<Producto>([]);
 
   // Mock de datos para pruebas
-  private products: Producto[] = [
-    { id: 1, codigoInterno: 'P001', descripcion: 'Pan Artesanal', codigoBarra: '779123456', precioVenta: 1200, precioCosto: 800, stockActual: 5, stockMinimo: 10, activo: true, imagenUrl: 'https://cdn-icons-png.flaticon.com/512/2821/2821804.png', categoria: 'Panadería', proveedorNombre: 'Distribuidora Pan' },
-    { id: 2, codigoInterno: 'P002', descripcion: 'Leche Entera', codigoBarra: '779987654', precioVenta: 1500, precioCosto: 1100, stockActual: 50, stockMinimo: 20, activo: true, imagenUrl: 'https://cdn-icons-png.flaticon.com/512/869/869504.png', categoria: 'Lácteos', proveedorNombre: 'La Serenísima' },
-    { id: 3, codigoInterno: 'P003', descripcion: 'Café Molido', codigoBarra: '779456123', precioVenta: 4500, precioCosto: 3200, stockActual: 0, stockMinimo: 5, activo: true, imagenUrl: 'https://cdn-icons-png.flaticon.com/512/924/924514.png', categoria: 'Almacén', proveedorNombre: 'Café Martínez' },
-  ];
-  private ingresosMock: Ingreso[] = [
-    {
-      id: 1,
-      fecha: new Date(2026, 5, 10, 10, 30),
-      proveedor: {
-        id: 1, razonSocial: 'Distribuidora Villaplast', cuit: '30-12345678-9', activo: true
-      },
-      numeroRemito: 'R-0001-00004562',
-      usuario: 'matias.admin',
-      totalCantidad: 150,
-      items: [
-        { producto: { id: 101, descripcion: 'Bolsas de Consorcio 60x90', stockActual: 500, activo: true, codigoInterno: 'B01' } as Producto, cantidad: 100 },
-        { producto: { id: 102, descripcion: 'Papel Higiénico Premium x4', stockActual: 200, activo: true, codigoInterno: 'P05' } as Producto, cantidad: 50 }
-      ]
-    },
-    {
-      id: 2,
-      fecha: new Date(2026, 5, 12, 15, 45),
-      proveedor: { id: 2, razonSocial: 'Papelera Norte', cuit: '30-98765432-1', activo: true },
-      numeroRemito: 'R-0002-00001234',
-      usuario: 'esteban.user',
-      totalCantidad: 80,
-      items: [
-        { producto: { id: 103, descripcion: 'Rollo de Cocina x3', stockActual: 300, activo: true, codigoInterno: 'R02' } as Producto, cantidad: 80 }
-      ]
-    }
-  ];
+  private products: Producto[] = PRODUCTOS_MOCK;
+  private ingresosMock: Ingreso[] = INGRESOS_MOCK;
 
-  categories: string[] = ['Panadería', 'Lácteos', 'Almacén', 'Limpieza'];
-  providers: string[] = ['Distribuidora Pan', 'La Serenísima', 'Café Martínez', 'Tregar', 'Unilever'];
+  categories: string[] = CATEGORIAS_MOCK;
+  providers: Proveedor[] = PROVEEDORES_MOCK;
+
+  onCategoriaCreated(nombre: string) {
+    if (!nombre) return;
+    if (!this.categories.includes(nombre)) this.categories.push(nombre);
+    this.filterForm.patchValue({ categoria: nombre });
+  }
+
+  onProveedorCreated(p: Proveedor) {
+    if (!p) return;
+    if (!this.providers.find(pr => pr.id === p.id)) this.providers.push(p);
+    this.filterForm.patchValue({ proveedor: p });
+  }
 
   constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {}
 
@@ -118,6 +108,24 @@ export class StockComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator;
+    // Localizar etiquetas del paginador a castellano
+    const intl: MatPaginatorIntl = this.paginator._intl as MatPaginatorIntl;
+    intl.itemsPerPageLabel = 'Elementos por página';
+    intl.nextPageLabel = 'Página siguiente';
+    intl.previousPageLabel = 'Página anterior';
+    intl.firstPageLabel = 'Primera página';
+    intl.lastPageLabel = 'Última página';
+    intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
+      if (length === 0 || pageSize === 0) {
+        return `0 de ${length}`;
+      }
+      const startIndex = page * pageSize + 1;
+      const endIndex = Math.min(length, (page + 1) * pageSize);
+      return `${startIndex} - ${endIndex} de ${length}`;
+    };
+    // Forzar actualización de etiquetas
+    try { (intl as any).changes.next(); } catch (e) { /* ignore if not available */ }
   }
 
   setupFilters() {
@@ -141,13 +149,22 @@ export class StockComponent implements OnInit, AfterViewInit {
   }
 
   applyFilters() {
+    const provVal = this.filterForm.value.proveedor;
+    const provName = typeof provVal === 'string' ? (provVal || '') : (provVal?.razonSocial || '');
     const filterValue = {
       search: this.searchControl.value?.toLowerCase() || '',
       categoria: this.filterForm.value.categoria || '',
-      proveedor: this.filterForm.value.proveedor || '',
+      proveedor: provName,
       soloStockBajo: this.filterForm.value.soloStockBajo || false
     };
     this.dataSource.filter = JSON.stringify(filterValue);
+  }
+
+  limpiarFiltros() {
+    this.searchControl.setValue('');
+    this.filterForm.reset({ categoria: '', proveedor: '', soloStockBajo: false });
+    this.refreshTable();
+    this.applyFilters();
   }
 
   getStockStatus(product: Producto): 'normal' | 'low' | 'out' {
@@ -176,7 +193,8 @@ export class StockComponent implements OnInit, AfterViewInit {
   openNuevoIngreso() {
     const dialogRef = this.dialog.open(ModalFormularioIngresoComponent, {
       width: '850px',
-      data: { proveedores: this.providers, productos: this.products }
+      data: { proveedores: this.providers, productos: this.products },
+      autoFocus: false
     });
 
     dialogRef.afterClosed().subscribe(result => {

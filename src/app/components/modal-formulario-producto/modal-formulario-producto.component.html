@@ -27,10 +27,13 @@
             <mat-label>Código de Barras</mat-label>
             <input matInput formControlName="codigoBarra">
           </mat-form-field>
-          <mat-form-field appearance="outline" class="col-md-4">
-            <mat-label>Categoría</mat-label>
-            <input matInput formControlName="categoria">
-          </mat-form-field>
+          <div class="col-md-4">
+            <app-buscador-categoria
+              [categorias]="categorias"
+              (categoriaSelected)="productForm.patchValue({categoria: $event})"
+              (categoriaCreated)="onCategoriaCreated($event)">
+            </app-buscador-categoria>
+          </div>
         </div>
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Descripción</mat-label>
@@ -70,7 +73,7 @@
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end" class="p-3">
-  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-stroked-button color="warn" (click)="cancel()">Cancelar</button>
   <button mat-flat-button color="primary" (click)="saveProduct()" [disabled]="productForm.invalid">
     Guardar Cambios
   </button>

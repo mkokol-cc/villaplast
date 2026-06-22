@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,6 +17,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ModalDetalleVentaComponent } from '../../components/modal-detalle-venta/modal-detalle-venta.component';
+import { BuscadorClienteComponent } from '../../components/buscador-cliente/buscador-cliente.component';
+import { CLIENTES_MOCK, Cliente } from '../../model/Cliente';
 
 import { Venta, EstadoVenta } from '../../model/Venta';
 import { MedioPago } from '../../model/Pago';
@@ -27,6 +30,7 @@ import { TipoFactura, EstadoFactura } from '../../model/Factura';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
@@ -40,14 +44,15 @@ import { TipoFactura, EstadoFactura } from '../../model/Factura';
     MatTooltipModule,
     MatSnackBarModule,
     MatChipsModule
-    , MatDialogModule
+    , MatDialogModule,
+    BuscadorClienteComponent
   ],
   templateUrl: './ventas.component.html',
   styleUrl: './ventas.component.scss'
 })
 export class VentasComponent implements OnInit {
   filterForm = new FormGroup({
-    cliente: new FormControl(''),
+    cliente: new FormControl<Cliente | string | null>(''),
     fechaDesde: new FormControl(null),
     fechaHasta: new FormControl(null),
     numeroVenta: new FormControl(''),
@@ -97,8 +102,15 @@ export class VentasComponent implements OnInit {
   ];
 
   dataSource = new MatTableDataSource<Venta>([]);
+  clientes: Cliente[] = CLIENTES_MOCK.slice();
 
   constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {}
+
+  onClienteCreated(cliente: Cliente) {
+    if (!cliente) return;
+    if (!this.clientes.find(c => c.id === cliente.id)) this.clientes.push(cliente);
+    this.filterForm.patchValue({ cliente });
+  }
 
   ngOnInit(): void {
     this.dataSource.data = this.ventasMock;
@@ -106,7 +118,7 @@ export class VentasComponent implements OnInit {
 
   openVentaDetails(venta: Venta) {
     this.dialog.open(ModalDetalleVentaComponent, {
-      width: '800px',
+      width: '600px',
       data: { venta: venta }
     });
   }

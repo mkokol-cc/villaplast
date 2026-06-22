@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
+import { BuscadorCategoriaComponent } from '../buscador-categoria/buscador-categoria.component';
+import { CATEGORIAS_MOCK } from '../../model/Producto';
 import { Producto } from '../../model/Producto';
 
 @Component({
@@ -22,7 +24,8 @@ import { Producto } from '../../model/Producto';
     MatButtonModule,
     MatIconModule,
     MatCheckboxModule,
-    MatDividerModule
+    MatDividerModule,
+    BuscadorCategoriaComponent
   ],
   templateUrl: './modal-formulario-producto.component.html',
   styleUrl: './modal-formulario-producto.component.scss'
@@ -30,6 +33,7 @@ import { Producto } from '../../model/Producto';
 export class ModalFormularioProductoComponent {
   productForm: FormGroup;
   isEditing: boolean;
+  categorias: string[] = CATEGORIAS_MOCK.slice();
 
   constructor(
     private fb: FormBuilder,
@@ -55,6 +59,12 @@ export class ModalFormularioProductoComponent {
   saveProduct() {
     if (this.productForm.invalid) return;
     this.dialogRef.close(this.productForm.value);
+  }
+
+  onCategoriaCreated(nombre: string) {
+    if (!nombre) return;
+    if (!this.categorias.includes(nombre)) this.categorias.push(nombre);
+    this.productForm.patchValue({ categoria: nombre });
   }
 
   cancel() {

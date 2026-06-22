@@ -10,7 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Producto } from '../../model/Producto';
+import { Proveedor } from '../../model/Proveedor';
 import { BuscadorProductoComponent } from '../buscador-producto/buscador-producto.component';
+import { BuscadorProveedorComponent } from '../buscador-proveedor/buscador-proveedor.component';
 import { ListaProductosComponent } from '../lista-productos/lista-productos.component';
 import { DetalleVenta } from '../../model/DetalleVenta';
 
@@ -22,6 +24,7 @@ import { DetalleVenta } from '../../model/DetalleVenta';
     ReactiveFormsModule,
     MatDialogModule,
     BuscadorProductoComponent,
+    BuscadorProveedorComponent,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -36,14 +39,14 @@ import { DetalleVenta } from '../../model/DetalleVenta';
 })
 export class ModalFormularioIngresoComponent implements OnInit {
   ingresoForm: FormGroup;
-  proveedores: string[];
+  proveedores: Proveedor[];
   products: Producto[] = [];
   cart: DetalleVenta[] = [];
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ModalFormularioIngresoComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { proveedores: string[], productos: Producto[] }
+    @Inject(MAT_DIALOG_DATA) public data: { proveedores: Proveedor[], productos: Producto[] }
   ) {
     this.proveedores = data.proveedores;
     this.products = data.productos;
@@ -53,6 +56,15 @@ export class ModalFormularioIngresoComponent implements OnInit {
       numeroRemito: ['', Validators.required],
       items: this.fb.array([])
     });
+  }
+
+  onProveedorSelected(proveedor: Proveedor) {
+    this.ingresoForm.patchValue({ proveedor });
+  }
+
+  onProveedorCreated(proveedor: Proveedor) {
+    this.proveedores.push(proveedor);
+    this.ingresoForm.patchValue({ proveedor });
   }
 
   ngOnInit() {

@@ -3,14 +3,11 @@
 
 <mat-dialog-content class="pt-3">
   <form [formGroup]="ingresoForm">
-    <div class="row g-3">
-      <mat-form-field appearance="outline" class="col-md-6">
-        <mat-label>Proveedor</mat-label>
-        <mat-select formControlName="proveedor">
-          <mat-option *ngFor="let p of proveedores" [value]="p">{{p}}</mat-option>
-        </mat-select>
-        <mat-error>El proveedor es requerido</mat-error>
-      </mat-form-field>
+    <div class="row">
+      <div class="col-md-6">
+        <app-buscador-proveedor [proveedores]="proveedores" (proveedorSelected)="onProveedorSelected($event)" (proveedorCreated)="onProveedorCreated($event)"></app-buscador-proveedor>
+        <div *ngIf="ingresoForm.get('proveedor')?.invalid && ingresoForm.get('proveedor')?.touched" class="text-danger">El proveedor es requerido</div>
+      </div>
 
       <mat-form-field appearance="outline" class="col-md-6">
         <mat-label>Número de Remito</mat-label>
@@ -19,7 +16,7 @@
       </mat-form-field>
     </div>
 
-    <mat-divider class="my-4"></mat-divider>
+    <mat-divider class="my-2"></mat-divider>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h3 class="m-0 fs-5 fw-bold text-secondary">Productos del Remito</h3>
@@ -38,7 +35,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="p-3 border-top bg-light">
-  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-stroked-button color="warn" (click)="cancel()">Cancelar</button>
   <button mat-flat-button color="primary" (click)="save()" 
           [disabled]="ingresoForm.invalid || items.length === 0">
     Guardar Ingreso

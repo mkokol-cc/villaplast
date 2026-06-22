@@ -6,6 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ModalVentaComponent } from '../../components/modal-venta/modal-venta.component';
 import { BuscadorProductoComponent } from '../../components/buscador-producto/buscador-producto.component';
 import { ListaProductosComponent } from '../../components/lista-productos/lista-productos.component';
 import { Producto } from '../../model/Producto';
@@ -19,6 +21,7 @@ import { DetalleVenta } from '../../model/DetalleVenta';
     ReactiveFormsModule,
     BuscadorProductoComponent,
     ListaProductosComponent,
+    MatDialogModule,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
@@ -26,7 +29,7 @@ import { DetalleVenta } from '../../model/DetalleVenta';
     MatListModule
   ],
   templateUrl: './pos.component.html',
-  styleUrl: './pos.component.scss'
+  styleUrls: ['./pos.component.scss']
 })
 export class PosComponent implements OnInit {
   // Mock de datos adaptado a la interfaz Producto
@@ -50,7 +53,17 @@ export class PosComponent implements OnInit {
   
   cart: DetalleVenta[] = [];
 
+  constructor(private dialog: MatDialog) {}
+
   ngOnInit(): void {}
+
+  openVenta() {
+    this.dialog.open(ModalVentaComponent, {
+      width: '820px',
+      data: { cart: this.cart, total: this.getTotal(), fecha: new Date() },
+      autoFocus: false
+    });
+  }
 
   addToCart(product: Producto) {
     const item = this.cart.find(i => i.producto.id === product.id);

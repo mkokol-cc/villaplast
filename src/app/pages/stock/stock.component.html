@@ -12,41 +12,48 @@
   </div>
 
   <div class="header-section mb-4">
-    <mat-card class="filter-card shadow-sm border-0 mt-3">
+    <mat-card class="filter-card border">
       <mat-card-content class="pt-3">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-          <!-- Buscador Principal Grande -->
-          <mat-form-field appearance="outline" class="flex-grow-1 search-field no-subscript">
-            <mat-label>Buscar por nombre, código interno o barras...</mat-label>
-            <input matInput [formControl]="searchControl" placeholder="Ej: Pan artesanal o 779..." (keyup.enter)="applyFilters()">
-            <mat-icon matPrefix class="me-2">search</mat-icon>
-            <button *ngIf="searchControl.value" matSuffix mat-icon-button (click)="searchControl.setValue('')">
-              <mat-icon>close</mat-icon>
-            </button>
-          </mat-form-field>
-        </div>
-        <!-- Filtros Secundarios -->
-        <div [formGroup]="filterForm" class="d-flex flex-wrap align-items-center gap-3 mt-2">
-          <mat-form-field appearance="outline" class="filter-item">
-            <mat-label>Categoría</mat-label>
-            <mat-select formControlName="categoria">
-              <mat-option value="">Todas</mat-option>
-              <mat-option *ngFor="let cat of categories" [value]="cat">{{cat}}</mat-option>
-            </mat-select>
-          </mat-form-field>
+        <form [formGroup]="filterForm" class="d-flex gap-3 align-items-center">
+          <div class="row g-3 flex-fill">
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 no-subscript">
+                <mat-label>Buscar por nombre, código interno o barras...</mat-label>
+                <input matInput [formControl]="searchControl" placeholder="Ej: Pan artesanal o 779..." (keyup.enter)="applyFilters()">
+                <mat-icon matPrefix class="me-2">search</mat-icon>
+                <button *ngIf="searchControl.value" matSuffix mat-icon-button type="button" (click)="searchControl.setValue('')">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
 
-          <mat-form-field appearance="outline" class="filter-item">
-            <mat-label>Proveedor</mat-label>
-            <mat-select formControlName="proveedor">
-              <mat-option value="">Todos</mat-option>
-              <mat-option *ngFor="let prov of providers" [value]="prov">{{prov}}</mat-option>
-            </mat-select>
-          </mat-form-field>
+            <div class="col-md-2">
+              <app-buscador-categoria
+                [categorias]="categories"
+                (categoriaSelected)="filterForm.patchValue({ categoria: $event })"
+                (categoriaCreated)="onCategoriaCreated($event)">
+              </app-buscador-categoria>
+            </div>
 
-          <mat-checkbox formControlName="soloStockBajo" color="warn" class="ms-2">
-            Solo Stock Bajo / Sin Stock
-          </mat-checkbox>
-        </div>
+            <div class="col-md-2">
+              <app-buscador-proveedor
+                [proveedores]="providers"
+                (proveedorSelected)="filterForm.patchValue({ proveedor: $event })"
+                (proveedorCreated)="onProveedorCreated($event)">
+              </app-buscador-proveedor>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-center">
+              <mat-checkbox formControlName="soloStockBajo" color="warn">Solo Stock Bajo</mat-checkbox>
+            </div>
+          </div>
+          
+
+          <div class="d-flex gap-2">
+            <button mat-flat-button color="primary" (click)="applyFilters()">Filtrar</button>
+            <button mat-stroked-button color="warn" (click)="limpiarFiltros()">Limpiar</button>
+          </div>
+        </form>
       </mat-card-content>
     </mat-card>
   </div>
@@ -62,9 +69,9 @@
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="codigoInterno">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Cód. Interno </th>
-        <td mat-cell *matCellDef="let p" class="fw-bold"> {{p.codigoInterno}} </td>
+      <ng-container matColumnDef="codigoBarra">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Cód. Barra </th>
+        <td mat-cell *matCellDef="let p" class="fw-bold"> {{p.codigoBarra || '-' }} </td>
       </ng-container>
 
       <ng-container matColumnDef="descripcion">
@@ -86,24 +93,21 @@
         <td mat-cell *matCellDef="let p" class="text-primary fw-bold"> {{p.precioVenta | currency:'ARS':'symbol':'1.2-2'}} </td>
       </ng-container>
 
-      <ng-container matColumnDef="estado">
-        <th mat-header-cell *matHeaderCellDef> Estado </th>
-        <td mat-cell *matCellDef="let p">
-          <span class="status-indicator" [ngClass]="p.activo ? 'active' : 'inactive'">
-            {{ p.activo ? 'ACTIVO' : 'INACTIVO' }}
-          </span>
-        </td>
+      <ng-container matColumnDef="proveedorNombre">
+        <th mat-header-cell *matHeaderCellDef> Último Proveedor </th>
+        <td mat-cell *matCellDef="let p"> {{ p.proveedorNombre || '-' }} </td>
       </ng-container>
 
       <ng-container matColumnDef="acciones">
         <th mat-header-cell *matHeaderCellDef> Acciones </th>
         <td mat-cell *matCellDef="let p">
-          <button mat-icon-button color="primary" (click)="viewProduct(p)" matTooltip="Ver detalles"><mat-icon>visibility</mat-icon></button>
-          <button mat-icon-button (click)="editProduct(p)" matTooltip="Editar"><mat-icon>edit</mat-icon></button>
-          <button mat-icon-button color="accent" (click)="viewMovements(p)" matTooltip="Movimientos"><mat-icon>history</mat-icon></button>
-          <button mat-icon-button [color]="p.activo ? 'warn' : 'primary'" (click)="toggleStatus(p)" [matTooltip]="p.activo ? 'Desactivar' : 'Activar'">
-            <mat-icon>{{p.activo ? 'delete' : 'restore'}}</mat-icon>
-          </button>
+          <div class="d-flex">
+            <button mat-icon-button (click)="editProduct(p)" matTooltip="Editar"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button (click)="viewMovements(p)" matTooltip="Movimientos"><mat-icon>history</mat-icon></button>
+            <button mat-icon-button [color]="p.activo ? 'warn' : 'primary'" (click)="toggleStatus(p)" [matTooltip]="p.activo ? 'Desactivar' : 'Activar'">
+              <mat-icon>{{p.activo ? 'delete' : 'restore'}}</mat-icon>
+            </button>
+          </div>
         </td>
       </ng-container>
 
@@ -112,8 +116,17 @@
 
       <!-- Fila si no hay resultados -->
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-4 text-center" colspan="8">No se encontraron productos con los filtros aplicados.</td>
+        <td class="mat-cell p-4 text-center" colspan="7">No se encontraron productos con los filtros aplicados.</td>
       </tr>
     </table>
+
+    <div class="d-flex justify-content-end border-top p-1">
+      <mat-paginator [length]="dataSource.data.length"
+                     [pageSize]="5"
+                     [pageSizeOptions]="[5, 10, 25, 50]"
+                     showFirstLastButtons
+                     aria-label="Selector de páginas">
+      </mat-paginator>
+    </div>
   </div>
 </div>

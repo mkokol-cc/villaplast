@@ -1,0 +1,17 @@
+<mat-form-field appearance="outline" class="w-100 large-input buscador-producto">
+  <mat-label>Categoría</mat-label>
+  <input type="text" matInput [formControl]="searchControl" [matAutocomplete]="auto" [value]="''" [attr.autocomplete]="'off'">
+  <button mat-icon-button matSuffix type="button" title="Nueva categoría" (click)="openNewCategoria($event)">
+    <mat-icon>add</mat-icon>
+  </button>
+
+  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event.option.value)" [displayWith]="displayFn.bind(this)">
+    <mat-option *ngFor="let cat of filteredCategorias | async" [value]="cat">
+      <div class="d-flex align-items-center py-1">
+        <div class="flex-grow-1">
+          <div>{{cat}}</div>
+        </div>
+      </div>
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>

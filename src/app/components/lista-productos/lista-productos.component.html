@@ -9,7 +9,10 @@
 
 				<div class="quantity-picker d-flex align-items-center">
 					<button mat-icon-button (click)="onChange(item, -1)" color="warn" class="btn-qty"><mat-icon>remove_circle_outline</mat-icon></button>
-					<span class="mx-1 fw-bold qty-number">{{item.cantidad}}</span>
+					<input #qtyInput type="number" min="0" class="form-control qty-input mx-1 text-center" [value]="item.cantidad"
+						 (change)="onManualChange(item, qtyInput.value)"
+						 (keydown.enter)="onManualChange(item, qtyInput.value)"
+					>
 					<button mat-icon-button (click)="onChange(item, 1)" color="primary" class="btn-qty"><mat-icon>add_circle_outline</mat-icon></button>
 				</div>
 			</div>

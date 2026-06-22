@@ -11,8 +11,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Proveedor } from '../../model/Proveedor';
+import { Proveedor, PROVEEDORES_MOCK } from '../../model/Proveedor';
+import { BuscadorProveedorComponent } from '../../components/buscador-proveedor/buscador-proveedor.component';
 import { ModalDetalleProveedorComponent } from '../../components/modal-detalle-proveedor/modal-detalle-proveedor.component';
+import { ModalFormularioProveedorComponent } from '../../components/modal-formulario-proveedor/modal-formulario-proveedor.component';
 
 @Component({
   selector: 'app-proveedores',
@@ -20,6 +22,8 @@ import { ModalDetalleProveedorComponent } from '../../components/modal-detalle-p
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    BuscadorProveedorComponent,
+    ModalFormularioProveedorComponent,
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
@@ -38,39 +42,8 @@ export class ProveedoresComponent implements OnInit {
   searchControl = new FormControl('');
   displayedColumns: string[] = ['razonSocial', 'cuit', 'telefono', 'saldo', 'ultimaCompra', 'acciones'];
   dataSource = new MatTableDataSource<Proveedor>([]);
-
-  // Mock de datos para demostración
-  private proveedoresMock: Proveedor[] = [
-    { 
-      id: 1, 
-      razonSocial: 'Distribuidora Villaplast', 
-      cuit: '30-12345678-9', 
-      telefono: '011 4567-8900', 
-      activo: true, 
-      ultimaCompra: new Date(2026, 5, 12),
-      observaciones: 'Proveedor principal de bolsas y descartables.',
-      direccion: 'Av. Corrientes 1234, CABA'
-    },
-    { 
-      id: 2, 
-      razonSocial: 'Papelera Norte', 
-      cuit: '30-98765432-1', 
-      telefono: '011 4321-0011', 
-      activo: true, 
-      ultimaCompra: new Date(2026, 4, 20),
-      observaciones: 'Entregas solo los martes.',
-      direccion: 'Ruta 8 Km 50, Pilar'
-    },
-    { 
-      id: 3, 
-      razonSocial: 'Insumos Pro', 
-      cuit: '20-11223344-5', 
-      telefono: '0230 445-6677', 
-      activo: false, 
-      ultimaCompra: new Date(2025, 11, 0),
-      observaciones: 'Cuenta suspendida por cambio de firma.'
-    }
-  ];
+  proveedoresMock: Proveedor[] = PROVEEDORES_MOCK
+  
 
   constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {}
 
@@ -80,6 +53,18 @@ export class ProveedoresComponent implements OnInit {
     this.searchControl.valueChanges.subscribe(value => {
       this.applyFilter(value || '');
     });
+  }
+
+  onProveedorSelected(p: Proveedor) {
+    // abrir detalle como si el usuario hiciera click en la fila
+    this.selectProveedor(p);
+  }
+
+  onProveedorCreated(p: Proveedor) {
+    // agregar al listado y refrescar tabla
+    this.proveedoresMock.push(p);
+    this.dataSource.data = this.proveedoresMock;
+    this.snackBar.open(`Proveedor creado: ${p.razonSocial}`, 'Cerrar', { duration: 2000 });
   }
 
   applyFilter(filterValue: string) {
@@ -95,12 +80,35 @@ export class ProveedoresComponent implements OnInit {
 
   // Acciones
   openNewProveedor() {
-    this.snackBar.open('Formulario de Nuevo Proveedor (Próximamente)', 'Cerrar');
+    const dialogRef = this.dialog.open(ModalFormularioProveedorComponent, {
+      width: '640px',
+      data: { proveedor: null },
+      autoFocus: false
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const newProv: Proveedor = { ...result, id: Date.now(), activo: result.activo ?? true } as Proveedor;
+        this.proveedoresMock.push(newProv);
+        this.dataSource.data = [...this.proveedoresMock];
+        this.snackBar.open(`Proveedor creado: ${newProv.razonSocial}`, 'Cerrar', { duration: 2000 });
+      }
+    });
   }
 
   editProveedor(p: Proveedor, event: Event) {
     event.stopPropagation();
-    this.snackBar.open(`Editando: ${p.razonSocial}`, 'Cerrar');
+    const dialogRef = this.dialog.open(ModalFormularioProveedorComponent, {
+      width: '640px',
+      data: { proveedor: { ...p } },
+      autoFocus: false
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        Object.assign(p, result);
+        this.dataSource.data = [...this.proveedoresMock];
+        this.snackBar.open(`Proveedor actualizado: ${p.razonSocial}`, 'Cerrar', { duration: 2000 });
+      }
+    });
   }
 
   toggleProveedorStatus(p: Proveedor, event: Event) {

@@ -1,30 +1,36 @@
-<div mat-dialog-title class="d-flex justify-content-between align-items-center border-bottom pb-2">
-  <h2 class="m-0 text-accent fw-bold">Ficha de Cliente</h2>
-  <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+<div mat-dialog-title class="d-flex justify-content-center align-items-center border-bottom py-2 bg-light">
+  <h2 class="m-0">Detalle de Cliente</h2>
 </div>
 
 <mat-dialog-content class="pt-3">
-  <div class="mb-4 text-center text-md-start">
-    <h3 class="fs-3 fw-bold mb-0 text-primary">{{data.cliente.razonSocial}}</h3>
-    <p class="text-muted"><mat-icon inline>person</mat-icon> Cliente Particular / Cuenta Corriente</p>
+  <div class="mb-4">
+    <h3 class="fs-4 fw-bold mb-1">{{data.cliente.razonSocial}}</h3>
+    <span class="badge bg-primary-subtle text-primary">Cliente Particular / Cuenta Corriente</span>
   </div>
 
-  <div class="bg-primary-subtle border border-primary-subtle rounded p-3 mb-4 d-flex justify-content-between align-items-center">
-    <div>
-      <div class="small text-primary-emphasis text-uppercase fw-bold">Saldo Adeudado</div>
-      <div class="fs-1 fw-bold text-primary">$0.00</div>
+    <div class="bg-light rounded p-3 mb-4 d-flex justify-content-between align-items-center border">
+      <div>
+        <div class="small text-muted text-uppercase fw-bold">Saldo Adeudado</div>
+        <div class="fs-2 fw-bold text-danger">$0.00</div>
+      </div>
+      <button mat-flat-button color="primary" (click)="registrarCobro(data.cliente)">Editar Saldo</button>
     </div>
-    <button mat-flat-button color="accent" (click)="registrarCobro(data.cliente)">COBRAR</button>
-  </div>
 
   <div class="row g-3">
-    <div class="col-md-6 border-end">
-      <label class="small text-muted fw-bold d-block text-uppercase">Información Fiscal</label>
-      <p class="mb-1"><strong>DNI/CUIT:</strong> {{data.cliente.cuitDni}}</p>
-      <p class="mb-1"><strong>Tel:</strong> {{data.cliente.telefono || 'N/A'}}</p>
-      <p class="mb-0"><strong>Dir:</strong> {{data.cliente.direccion || 'No registrada'}}</p>
+    <div class="col-md-6">
+      <label class="d-block small text-muted fw-bold text-uppercase">CUIT / DNI</label>
+      <p class="mb-0">{{data.cliente.cuitDni}}</p>
     </div>
-    <div class="col-md-6 ps-md-4">
+    <div class="col-md-6">
+      <label class="d-block small text-muted fw-bold text-uppercase">Teléfono</label>
+      <p class="mb-0">{{data.cliente.telefono || 'Sin teléfono'}}</p>
+    </div>
+    <div class="col-12">
+      <label class="d-block small text-muted fw-bold text-uppercase">Dirección</label>
+      <p class="mb-0">{{data.cliente.direccion || 'No especificada'}}</p>
+    </div>
+    <div class="col-12">
+      <mat-divider class="my-2"></mat-divider>
       <label class="small text-muted fw-bold d-block text-uppercase">Estadísticas</label>
       <p class="mb-1"><strong>Total Compras:</strong> {{data.cliente.cantidadCompras || 0}}</p>
       <p class="mb-0"><strong>Último Mov:</strong> {{data.cliente.ultimaCompra | date:'dd/MM/yyyy' || '-'}}</p>
@@ -32,8 +38,9 @@
   </div>
 </mat-dialog-content>
 
+
 <mat-dialog-actions align="end" class="p-3 border-top bg-light">
-  <button mat-button mat-dialog-close>Cerrar</button>
-  <button mat-button (click)="imprimirEstadoCuenta()">IMPRIMIR ESTADO</button>
-  <button mat-flat-button color="primary" (click)="editarCliente(data.cliente)">EDITAR FICHA</button>
+  <button mat-stroked-button color="warn" mat-dialog-close>Cerrar</button>
+  <button mat-stroked-button color="primary" (click)="imprimirEstadoCuenta()"><mat-icon>print</mat-icon>Imprimir</button>
+  <button mat-stroked-button color="primary" (click)="editarCliente(data.cliente)"><mat-icon>edit</mat-icon>Editar</button>
 </mat-dialog-actions>

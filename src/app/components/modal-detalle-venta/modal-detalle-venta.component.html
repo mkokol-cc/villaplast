@@ -1,6 +1,5 @@
-<div mat-dialog-title class="d-flex justify-content-between align-items-center border-bottom pb-2">
-  <h2 class="m-0 text-success fw-bold">Comprobante de Venta #{{data.venta.id}}</h2>
-  <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+<div mat-dialog-title class="d-flex justify-content-center align-items-center border-bottom py-2 bg-light">
+  <h2 class="m-0">Comprobante de Venta #{{data.venta.id}}</h2>
 </div>
 
 <mat-dialog-content class="pt-3">
@@ -20,6 +19,7 @@
   </div>
 
   <h6 class="fw-bold mb-2 text-uppercase small text-muted">Artículos Vendidos</h6>
+  
   <div class="table-responsive border rounded mb-3">
     <table class="table table-hover mb-0">
       <thead class="table-light">
@@ -50,7 +50,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="p-3 border-top bg-light">
-  <button mat-button mat-dialog-close>Cerrar</button>
-  <button mat-stroked-button color="primary" (click)="imprimirComprobante()"><mat-icon>print</mat-icon> Recibo</button>
-  <button mat-stroked-button (click)="reimprimirTicket()"><mat-icon>receipt</mat-icon> Ticket</button>
+  <button mat-stroked-button color="warn" mat-dialog-close>Cerrar</button>
+  <button mat-stroked-button color="primary" (click)="imprimirComprobante()"><mat-icon>receipt</mat-icon> Facturar</button>
+  <button mat-stroked-button (click)="reimprimirTicket()"><mat-icon>print</mat-icon> Ticket</button>
 </mat-dialog-actions>

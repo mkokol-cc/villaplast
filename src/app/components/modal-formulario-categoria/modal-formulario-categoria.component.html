@@ -1,0 +1,17 @@
+<div mat-dialog-title class="d-flex justify-content-center align-items-center">
+  <h3 class="m-0">Nueva Categoría</h3>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="p-2">
+    <mat-form-field appearance="outline" class="w-100 mb-2">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="p-2">
+  <button mat-stroked-button color="warn" (click)="close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid">Crear</button>
+</mat-dialog-actions>

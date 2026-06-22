@@ -16,7 +16,18 @@ import { ModalFormularioProductoComponent } from '../modal-formulario-producto/m
 @Component({
   selector: 'app-buscador-producto',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatDialogModule, MatTooltipModule, ModalFormularioProductoComponent],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    MatAutocompleteModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatIconModule, 
+    MatButtonModule, 
+    MatDialogModule, 
+    MatTooltipModule, 
+    ModalFormularioProductoComponent
+  ],
   templateUrl: './buscador-producto.component.html',
   styleUrls: ['./buscador-producto.component.scss']
 })
@@ -50,7 +61,7 @@ export class BuscadorProductoComponent implements OnInit {
       event.stopPropagation();
     }
     const ref = this.dialog.open(ModalFormularioProductoComponent, {
-      width: '640px',
+      width: '900px',
       data: { producto: null }
     });
     ref.afterClosed().subscribe(result => {

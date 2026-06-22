@@ -12,8 +12,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'; // Import MatSnackBar
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Cliente } from '../../model/Cliente';
+import { Cliente, CLIENTES_MOCK } from '../../model/Cliente';
 import { ModalDetalleClienteComponent } from '../../components/modal-detalle-cliente/modal-detalle-cliente.component';
+import { BuscadorClienteComponent } from '../../components/buscador-cliente/buscador-cliente.component';
+import { ModalFormularioClienteComponent } from '../../components/modal-formulario-cliente/modal-formulario-cliente.component';
 
 @Component({
   selector: 'app-clientes',
@@ -21,6 +23,7 @@ import { ModalDetalleClienteComponent } from '../../components/modal-detalle-cli
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    BuscadorClienteComponent,
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
@@ -42,42 +45,7 @@ export class ClientesComponent implements OnInit {
   dataSource = new MatTableDataSource<Cliente>([]);
 
   // Mock de datos para visualización
-  private clientesMock: Cliente[] = [
-    {
-      id: 1,
-      razonSocial: 'Juan Pérez',
-      cuitDni: '20-33444555-1',
-      telefono: '11 5566-7788',
-      direccion: 'Calle Falsa 123, CABA',
-      activo: true,
-      observaciones: 'Cliente habitual, siempre paga a término.',
-      ultimaCompra: new Date(2026, 5, 10),
-      cantidadCompras: 15,
-      cuentaCorriente: { id: 1, movimientos: [] }
-    },
-    {
-      id: 2,
-      razonSocial: 'Villaplast Distribuidora',
-      cuitDni: '30-11222333-4',
-      telefono: '11 4455-6677',
-      direccion: 'Av. Corrientes 500, CABA',
-      activo: true,
-      observaciones: 'Requiere factura A.',
-      ultimaCompra: new Date(2026, 4, 25),
-      cantidadCompras: 42,
-      cuentaCorriente: { id: 2, movimientos: [] }
-    },
-    {
-      id: 3,
-      razonSocial: 'María García',
-      cuitDni: '27-99888777-2',
-      telefono: '11 2233-4455',
-      activo: false,
-      ultimaCompra: new Date(2025, 11, 15),
-      cantidadCompras: 3,
-      cuentaCorriente: { id: 3, movimientos: [] }
-    }
-  ];
+  clientesMock: Cliente[] = CLIENTES_MOCK;
 
   constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {}
 
@@ -91,18 +59,47 @@ export class ClientesComponent implements OnInit {
 
   selectCliente(cliente: Cliente) {
     this.dialog.open(ModalDetalleClienteComponent, {
-      width: '800px',
+      width: '600px',
       data: { cliente: cliente }
     });
   }
 
+  onClienteCreated(c: Cliente) {
+    this.clientesMock.push(c);
+    this.dataSource.data = this.clientesMock;
+    this.snackBar.open(`Cliente creado: ${c.razonSocial}`, 'Cerrar', { duration: 2000 });
+  }
+
   nuevoCliente() {
-    this.snackBar.open('Formulario de nuevo cliente (próximamente)', 'Cerrar');
+    const dialogRef = this.dialog.open(ModalFormularioClienteComponent, {
+      width: '640px',
+      data: { cliente: null },
+      autoFocus: false
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const newClient: Cliente = { ...result, id: Date.now(), activo: result.activo ?? true } as Cliente;
+        this.clientesMock.push(newClient);
+        this.dataSource.data = this.clientesMock;
+        this.snackBar.open(`Cliente creado: ${newClient.razonSocial}`, 'Cerrar', { duration: 2000 });
+      }
+    });
   }
 
   editarCliente(cliente: Cliente, event: Event) {
     event.stopPropagation();
-    this.snackBar.open(`Editando: ${cliente.razonSocial}`, 'Cerrar');
+    const dialogRef = this.dialog.open(ModalFormularioClienteComponent, {
+      width: '640px',
+      data: { cliente: cliente },
+      autoFocus: false
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        Object.assign(cliente, result);
+        this.dataSource.data = [...this.clientesMock];
+        this.snackBar.open(`Cliente actualizado: ${cliente.razonSocial}`, 'Cerrar', { duration: 2000 });
+      }
+    });
   }
 
   toggleActivo(cliente: Cliente, event: Event) {

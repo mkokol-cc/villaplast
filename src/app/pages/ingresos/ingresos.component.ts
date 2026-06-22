@@ -15,10 +15,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common'; // Import DatePipe
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Proveedor } from '../../model/Proveedor';
+import { Proveedor, PROVEEDORES_MOCK } from '../../model/Proveedor';
 import { Producto, PRODUCTOS_MOCK } from '../../model/Producto';
 import { ModalDetalleIngresoComponent } from '../../components/modal-detalle-ingreso/modal-detalle-ingreso.component';
 import { ModalFormularioIngresoComponent } from '../../components/modal-formulario-ingreso/modal-formulario-ingreso.component';
+import { BuscadorProveedorComponent } from '../../components/buscador-proveedor/buscador-proveedor.component';
 
 interface DetalleIngreso {
   producto: Producto;
@@ -35,47 +36,7 @@ interface Ingreso {
   totalCantidad: number;
 }
 
-@Component({
-  selector: 'app-ingresos',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule,
-    MatDividerModule,
-    MatTooltipModule, 
-    DatePipe,
-    MatDialogModule,
-    ModalFormularioIngresoComponent
-  ],
-  templateUrl: './ingresos.component.html',
-  styleUrl: './ingresos.component.scss'
-})
-export class IngresosComponent implements OnInit {
-  filterForm = new FormGroup({
-    proveedor: new FormControl(''),
-    fechaDesde: new FormControl(null),
-    fechaHasta: new FormControl(null),
-    remito: new FormControl('')
-  });
-
-  displayedColumns: string[] = ['fecha', 'proveedor', 'remito', 'cantidad', 'usuario', 'acciones'];
-
-  // Mocks para proveedores y datos de historial
-  proveedores: string[] = ['Distribuidora Villaplast', 'Papelera Norte', 'Insumos Pro'];
-  
-  // Mock de productos para la selección en el formulario
-  productosMock: Producto[] = PRODUCTOS_MOCK;
-
-  private ingresosMock: Ingreso[] = [
+  export const INGRESOS_MOCK: Ingreso[] = [
     {
       id: 1,
       fecha: new Date(2026, 5, 10, 10, 30),
@@ -103,12 +64,64 @@ export class IngresosComponent implements OnInit {
     }
   ];
 
+@Component({
+  selector: 'app-ingresos',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    BuscadorProveedorComponent,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatDividerModule,
+    MatTooltipModule, 
+    DatePipe,
+    MatDialogModule,
+    ModalFormularioIngresoComponent
+  ],
+  templateUrl: './ingresos.component.html',
+  styleUrl: './ingresos.component.scss'
+})
+export class IngresosComponent implements OnInit {
+  filterForm = new FormGroup({
+    proveedor: new FormControl<Proveedor | null>(null),
+    fechaDesde: new FormControl(null),
+    fechaHasta: new FormControl(null),
+    remito: new FormControl('')
+  });
+
+  displayedColumns: string[] = ['fecha', 'proveedor', 'remito', 'cantidad', 'usuario', 'acciones'];
+
+  // Mocks para proveedores y datos de historial
+  proveedores: Proveedor[] = PROVEEDORES_MOCK;
+  
+  // Mock de productos para la selección en el formulario
+  productosMock: Producto[] = PRODUCTOS_MOCK;
+
+  private ingresosMock: Ingreso[] = INGRESOS_MOCK;
+
   dataSource = new MatTableDataSource<Ingreso>([]);
 
   constructor(private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
   ngOnInit() {
     this.dataSource.data = this.ingresosMock;
+  }
+
+  onProveedorSelected(p: Proveedor) {
+    this.filterForm.patchValue({ proveedor: p });
+  }
+
+  onProveedorCreated(p: Proveedor) {
+    this.proveedores.push(p);
+    this.filterForm.patchValue({ proveedor: p });
   }
 
   verDetalle(ingreso: Ingreso) {
@@ -118,7 +131,8 @@ export class IngresosComponent implements OnInit {
   openNuevoIngreso() {
     const dialogRef = this.dialog.open(ModalFormularioIngresoComponent, {
       width: '850px',
-      data: { proveedores: this.proveedores, productos: this.productosMock }
+      data: { proveedores: this.proveedores, productos: this.productosMock },
+      autoFocus: false
     });
 
     dialogRef.afterClosed().subscribe(result => {
