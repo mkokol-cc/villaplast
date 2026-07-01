@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -9,8 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { BuscadorCategoriaComponent } from '../buscador-categoria/buscador-categoria.component';
-import { CATEGORIAS_MOCK } from '../../model/Producto';
 import { Producto } from '../../model/Producto';
+import { CategoriasService } from '../../services/categorias.service';
 
 @Component({
   selector: 'app-modal-formulario-producto',
@@ -30,18 +30,19 @@ import { Producto } from '../../model/Producto';
   templateUrl: './modal-formulario-producto.component.html',
   styleUrl: './modal-formulario-producto.component.scss'
 })
-export class ModalFormularioProductoComponent {
+export class ModalFormularioProductoComponent implements OnInit {
   productForm: FormGroup;
   isEditing: boolean;
-  categorias: string[] = CATEGORIAS_MOCK.slice();
+  categorias: string[] = [];
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ModalFormularioProductoComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { producto: Producto | null }
+    @Inject(MAT_DIALOG_DATA) public data: { producto: Producto | null },
+    private categoriasService: CategoriasService
   ) {
     this.isEditing = !!data.producto;
-    
+
     this.productForm = this.fb.group({
       codigoInterno: [data.producto?.codigoInterno || '', Validators.required],
       codigoBarra: [data.producto?.codigoBarra || ''],
@@ -53,6 +54,12 @@ export class ModalFormularioProductoComponent {
       proveedorNombre: [data.producto?.proveedorNombre || ''],
       imagenUrl: [data.producto?.imagenUrl || ''],
       activo: [data.producto ? data.producto.activo : true]
+    });
+  }
+
+  ngOnInit(): void {
+    this.categoriasService.getAll().subscribe(data => {
+      this.categorias = data;
     });
   }
 

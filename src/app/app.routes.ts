@@ -6,6 +6,8 @@ import { IngresosComponent } from './pages/ingresos/ingresos.component';
 import { ProveedoresComponent } from './pages/proveedores/proveedores.component';
 import { StockComponent } from './pages/stock/stock.component';
 import { VentasComponent } from './pages/ventas/ventas.component';
+import { CajaComponent } from './pages/caja/caja.component';
+import { ReportesComponent } from './pages/reportes/reportes.component';
 
 export const routes: Routes = [
     {
@@ -18,7 +20,9 @@ export const routes: Routes = [
             { path: 'remitos', component:IngresosComponent },
             { path: 'proveedores', component:ProveedoresComponent },
             { path: 'clientes', component:ClientesComponent },
-            { path: 'ventas', component:VentasComponent }
+            { path: 'ventas', component:VentasComponent },
+            { path: 'caja', component:CajaComponent },
+            { path: 'reportes', component:ReportesComponent }
         ]
     },
 ];

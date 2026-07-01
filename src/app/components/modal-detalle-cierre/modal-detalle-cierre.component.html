@@ -1,0 +1,47 @@
+<div mat-dialog-title class="d-flex justify-content-center align-items-center border-bottom py-2 bg-light">
+  <h2 class="m-0">Detalle de Cierre</h2>
+</div>
+
+<mat-dialog-content class="pt-3">
+  <div class="row mb-3 bg-light p-3 rounded mx-0 border">
+    <div class="col-md-6">
+      <label class="small text-muted d-block fw-bold">FECHA Y HORA</label>
+      <span>{{data.cierre.fecha | date:'dd/MM/yyyy'}} — {{data.cierre.hora}}</span>
+    </div>
+    <div class="col-md-3">
+      <label class="small text-muted d-block fw-bold">VENTAS</label>
+      <span class="fw-bold">{{data.cierre.cantidadVentas}}</span>
+    </div>
+    <div class="col-md-3 text-md-end">
+      <label class="small text-muted d-block fw-bold">MONTO INICIAL</label>
+      <span>{{data.cierre.montoInicial | currency:'ARS':'symbol':'1.2-2'}}</span>
+    </div>
+  </div>
+
+  <h6 class="fw-bold mb-2 text-uppercase small text-muted">Totales por forma de pago</h6>
+
+  <div class="table-responsive border rounded mb-3">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr><th>Forma de pago</th><th class="text-end">Total</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of data.cierre.totalPorMedioPago">
+          <td>{{ LABELS[item.medioPago] || item.medioPago }}</td>
+          <td class="text-end fw-bold">{{ item.total | currency:'ARS':'symbol':'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-end p-3 bg-light border rounded">
+    <div class="text-end">
+      <div class="small text-muted fw-bold">TOTAL GENERAL</div>
+      <div class="fs-2 fw-bold text-success">{{data.cierre.totalVendido | currency:'ARS':'symbol':'1.2-2'}}</div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="p-3 border-top bg-light">
+  <button mat-stroked-button color="warn" mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

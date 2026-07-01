@@ -1,0 +1,49 @@
+<div class="reportes-container p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-6 fw-bold m-0">Reporte Diario</h1>
+  </div>
+
+  <div class="header-section mb-4">
+    <mat-card class="filter-card border mt-3">
+      <mat-card-content class="pt-3">
+        <form [formGroup]="reporteForm" class="d-flex align-items-center gap-3">
+          <div class="row g-3 flex-fill">
+            <div class="col-md-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Fecha</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="fecha">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="col-md-9 d-flex align-items-center gap-3">
+              <span class="text-muted">Ventas: <strong>{{ cantidadVentas }}</strong></span>
+              <span class="text-muted">|</span>
+              <span class="text-muted">Total: <strong class="text-primary">{{ totalVendido | currency:'ARS':'symbol':'1.2-2' }}</strong></span>
+            </div>
+          </div>
+          <button mat-stroked-button color="warn" (click)="limpiar()">
+            <mat-icon>refresh</mat-icon> Hoy
+          </button>
+        </form>
+
+        <mat-divider class="my-3"></mat-divider>
+
+        <div class="info-label mb-2">Totales por forma de pago</div>
+        <div class="pago-list">
+          <div class="pago-row" *ngFor="let item of desglose">
+            <span class="pago-label">{{ item.label }}</span>
+            <span class="pago-total">{{ item.total | currency:'ARS':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="pago-row pago-row-total" *ngIf="desglose.length > 0">
+            <span class="pago-label fw-bold">Total General</span>
+            <span class="pago-total fw-bold">{{ totalVendido | currency:'ARS':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="text-muted small py-2" *ngIf="desglose.length === 0">
+            No hay ventas registradas en esta fecha.
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

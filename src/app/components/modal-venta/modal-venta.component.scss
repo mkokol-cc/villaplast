@@ -1,0 +1,51 @@
+.client-card {
+  background: #f8f9fa;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: #c0c0c0 !important;
+  }
+}
+
+.compact-table {
+  font-size: 0.9rem;
+
+  th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6c757d;
+    padding: 0.5rem 0.75rem;
+  }
+
+  td {
+    padding: 0.4rem 0.75rem;
+    vertical-align: middle;
+  }
+}
+
+.compact-field {
+  ::ng-deep {
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+    .mat-mdc-text-field-wrapper {
+      height: 48px;
+    }
+    .mat-mdc-form-field-flex {
+      margin-top: 0 !important;
+    }
+  }
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+mat-dialog-content {
+  max-height: 70vh;
+}
+
+.mat-mdc-dialog-title.mdc-dialog__title::before {
+  display: none;
+}

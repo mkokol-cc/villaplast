@@ -11,7 +11,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BuscadorClienteComponent } from '../buscador-cliente/buscador-cliente.component';
-import { Cliente, CLIENTES_MOCK } from '../../model/Cliente';
+import { Cliente } from '../../model/Cliente';
+import { ClientesService } from '../../services/clientes.service';
 
 @Component({
   selector: 'app-modal-venta',
@@ -36,10 +37,11 @@ import { Cliente, CLIENTES_MOCK } from '../../model/Cliente';
 export class ModalVentaComponent implements OnInit {
   ventaForm: FormGroup;
   editingClient = false;
+  selectedClient: Cliente | null = null;
   cart: any[] = [];
   total = 0;
   fecha: Date = new Date();
-  clientes: Cliente[] = CLIENTES_MOCK
+  clientes: Cliente[] = [];
   metodoPagoOptions = [
     { value: 'efectivo', label: 'Efectivo' },
     { value: 'transferencia', label: 'Transferencia' },
@@ -53,7 +55,8 @@ export class ModalVentaComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ModalVentaComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { cart: any[]; total: number; fecha: Date }
+    @Inject(MAT_DIALOG_DATA) public data: { cart: any[]; total: number; fecha: Date },
+    private clientesService: ClientesService
   ) {
     this.cart = data.cart || [];
     this.total = data.total || 0;
@@ -73,16 +76,26 @@ export class ModalVentaComponent implements OnInit {
     return this.ventaForm.get('metodoPago') as FormControl;
   }
 
-  ngOnInit(): void {}
+  get hasClient(): boolean {
+    return !!this.selectedClient;
+  }
+
+  ngOnInit(): void {
+    this.clientesService.getAll().subscribe(data => {
+      this.clientes = data;
+    });
+  }
 
   onClienteSelected(cliente: any) {
     if (!cliente) return;
+    this.selectedClient = cliente;
     this.ventaForm.patchValue({
       razonSocial: cliente.razonSocial || '',
       cuitDni: cliente.cuitDni || cliente.cuit || '',
       telefono: cliente.telefono || '',
       direccion: cliente.direccion || ''
     });
+    this.editingClient = false;
     this.disableClientFields();
   }
 
@@ -96,16 +109,23 @@ export class ModalVentaComponent implements OnInit {
   }
 
   disableClientFields() {
-    // Deshabilitar solo los campos relacionados al cliente, mantener otros controles (p.ej. metodoPago) activos
     const clientControls = ['razonSocial', 'cuitDni', 'telefono', 'direccion'];
     clientControls.forEach(key => this.ventaForm.get(key)?.disable());
   }
 
   close() { this.dialogRef.close(); }
 
+  guardar() {
+    const payload = { client: this.ventaForm.getRawValue(), metodoPago: this.ventaForm.getRawValue().metodoPago };
+    this.dialogRef.close({ action: 'guardar', payload });
+  }
+
   facturar() {
-    // placeholder: implement invoicing later
-    const payload = { client: this.ventaForm.value, metodoPago: this.ventaForm.value.metodoPago };
+    const payload = { client: this.ventaForm.getRawValue(), metodoPago: this.ventaForm.getRawValue().metodoPago };
     this.dialogRef.close({ action: 'facturar', payload });
+  }
+
+  getTotalQuantity(): number {
+    return this.cart.reduce((sum, i) => sum + i.cantidad, 0);
   }
 }

@@ -11,7 +11,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Proveedor, PROVEEDORES_MOCK } from '../../model/Proveedor';
+import { Proveedor } from '../../model/Proveedor';
+import { ProveedoresService } from '../../services/proveedores.service';
 import { BuscadorProveedorComponent } from '../../components/buscador-proveedor/buscador-proveedor.component';
 import { ModalDetalleProveedorComponent } from '../../components/modal-detalle-proveedor/modal-detalle-proveedor.component';
 import { ModalFormularioProveedorComponent } from '../../components/modal-formulario-proveedor/modal-formulario-proveedor.component';
@@ -42,29 +43,31 @@ export class ProveedoresComponent implements OnInit {
   searchControl = new FormControl('');
   displayedColumns: string[] = ['razonSocial', 'cuit', 'telefono', 'saldo', 'ultimaCompra', 'acciones'];
   dataSource = new MatTableDataSource<Proveedor>([]);
-  proveedoresMock: Proveedor[] = PROVEEDORES_MOCK
-  
+  proveedoresMock: Proveedor[] = [];
 
-  constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {}
+  constructor(private snackBar: MatSnackBar, private dialog: MatDialog, private proveedoresService: ProveedoresService) {}
 
   ngOnInit(): void {
-    this.dataSource.data = this.proveedoresMock;
-    
+    this.proveedoresService.getAll().subscribe(data => {
+      this.proveedoresMock = data;
+      this.dataSource.data = this.proveedoresMock;
+    });
+
     this.searchControl.valueChanges.subscribe(value => {
       this.applyFilter(value || '');
     });
   }
 
   onProveedorSelected(p: Proveedor) {
-    // abrir detalle como si el usuario hiciera click en la fila
     this.selectProveedor(p);
   }
 
   onProveedorCreated(p: Proveedor) {
-    // agregar al listado y refrescar tabla
-    this.proveedoresMock.push(p);
-    this.dataSource.data = this.proveedoresMock;
-    this.snackBar.open(`Proveedor creado: ${p.razonSocial}`, 'Cerrar', { duration: 2000 });
+    this.proveedoresService.create(p).subscribe(nuevo => {
+      this.proveedoresMock.push(nuevo);
+      this.dataSource.data = this.proveedoresMock;
+      this.snackBar.open(`Proveedor creado: ${nuevo.razonSocial}`, 'Cerrar', { duration: 2000 });
+    });
   }
 
   applyFilter(filterValue: string) {
@@ -78,7 +81,6 @@ export class ProveedoresComponent implements OnInit {
     });
   }
 
-  // Acciones
   openNewProveedor() {
     const dialogRef = this.dialog.open(ModalFormularioProveedorComponent, {
       width: '640px',
@@ -88,9 +90,11 @@ export class ProveedoresComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         const newProv: Proveedor = { ...result, id: Date.now(), activo: result.activo ?? true } as Proveedor;
-        this.proveedoresMock.push(newProv);
-        this.dataSource.data = [...this.proveedoresMock];
-        this.snackBar.open(`Proveedor creado: ${newProv.razonSocial}`, 'Cerrar', { duration: 2000 });
+        this.proveedoresService.create(newProv).subscribe(nuevo => {
+          this.proveedoresMock.push(nuevo);
+          this.dataSource.data = [...this.proveedoresMock];
+          this.snackBar.open(`Proveedor creado: ${nuevo.razonSocial}`, 'Cerrar', { duration: 2000 });
+        });
       }
     });
   }
@@ -105,8 +109,10 @@ export class ProveedoresComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         Object.assign(p, result);
-        this.dataSource.data = [...this.proveedoresMock];
-        this.snackBar.open(`Proveedor actualizado: ${p.razonSocial}`, 'Cerrar', { duration: 2000 });
+        this.proveedoresService.update(p.id, p).subscribe(() => {
+          this.dataSource.data = [...this.proveedoresMock];
+          this.snackBar.open(`Proveedor actualizado: ${p.razonSocial}`, 'Cerrar', { duration: 2000 });
+        });
       }
     });
   }
@@ -114,7 +120,9 @@ export class ProveedoresComponent implements OnInit {
   toggleProveedorStatus(p: Proveedor, event: Event) {
     event.stopPropagation();
     p.activo = !p.activo;
-    this.snackBar.open(`Proveedor ${p.activo ? 'activado' : 'desactivado'}`, 'Cerrar', { duration: 2000 });
+    this.proveedoresService.update(p.id, p).subscribe(() => {
+      this.snackBar.open(`Proveedor ${p.activo ? 'activado' : 'desactivado'}`, 'Cerrar', { duration: 2000 });
+    });
   }
 
   registrarPago(p: Proveedor | null) {

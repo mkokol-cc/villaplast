@@ -10,9 +10,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'; // Import MatSnackBar
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Cliente, CLIENTES_MOCK } from '../../model/Cliente';
+import { Cliente } from '../../model/Cliente';
+import { ClientesService } from '../../services/clientes.service';
 import { ModalDetalleClienteComponent } from '../../components/modal-detalle-cliente/modal-detalle-cliente.component';
 import { BuscadorClienteComponent } from '../../components/buscador-cliente/buscador-cliente.component';
 import { ModalFormularioClienteComponent } from '../../components/modal-formulario-cliente/modal-formulario-cliente.component';
@@ -44,17 +45,19 @@ export class ClientesComponent implements OnInit {
   displayedColumns: string[] = ['razonSocial', 'cuitDni', 'telefono', 'saldo', 'ultimaCompra', 'acciones'];
   dataSource = new MatTableDataSource<Cliente>([]);
 
-  // Mock de datos para visualización
-  clientesMock: Cliente[] = CLIENTES_MOCK;
+  clientesMock: Cliente[] = [];
 
-  constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {}
+  constructor(private snackBar: MatSnackBar, private dialog: MatDialog, private clientesService: ClientesService) {}
 
   ngOnInit(): void {
-    this.dataSource.data = this.clientesMock;
-    
+    this.clientesService.getAll().subscribe(data => {
+      this.clientesMock = data;
+      this.dataSource.data = this.clientesMock;
+    });
+
     this.searchControl.valueChanges.subscribe(value => {
       this.dataSource.filter = (value || '').trim().toLowerCase();
-    }); 
+    });
   }
 
   selectCliente(cliente: Cliente) {
@@ -65,9 +68,11 @@ export class ClientesComponent implements OnInit {
   }
 
   onClienteCreated(c: Cliente) {
-    this.clientesMock.push(c);
-    this.dataSource.data = this.clientesMock;
-    this.snackBar.open(`Cliente creado: ${c.razonSocial}`, 'Cerrar', { duration: 2000 });
+    this.clientesService.create(c).subscribe(nuevo => {
+      this.clientesMock.push(nuevo);
+      this.dataSource.data = this.clientesMock;
+      this.snackBar.open(`Cliente creado: ${nuevo.razonSocial}`, 'Cerrar', { duration: 2000 });
+    });
   }
 
   nuevoCliente() {
@@ -96,8 +101,10 @@ export class ClientesComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         Object.assign(cliente, result);
-        this.dataSource.data = [...this.clientesMock];
-        this.snackBar.open(`Cliente actualizado: ${cliente.razonSocial}`, 'Cerrar', { duration: 2000 });
+        this.clientesService.update(cliente.id, cliente).subscribe(() => {
+          this.dataSource.data = [...this.clientesMock];
+          this.snackBar.open(`Cliente actualizado: ${cliente.razonSocial}`, 'Cerrar', { duration: 2000 });
+        });
       }
     });
   }
@@ -105,7 +112,9 @@ export class ClientesComponent implements OnInit {
   toggleActivo(cliente: Cliente, event: Event) {
     event.stopPropagation();
     cliente.activo = !cliente.activo;
-    this.snackBar.open(`Cliente ${cliente.activo ? 'activado' : 'desactivado'}`, 'Cerrar', { duration: 2000 });
+    this.clientesService.update(cliente.id, cliente).subscribe(() => {
+      this.snackBar.open(`Cliente ${cliente.activo ? 'activado' : 'desactivado'}`, 'Cerrar', { duration: 2000 });
+    });
   }
 
   registrarCobro(cliente: Cliente | null) {

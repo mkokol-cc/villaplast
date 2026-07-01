@@ -15,29 +15,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatPaginator, MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
-import { CATEGORIAS_MOCK, Producto, PRODUCTOS_MOCK } from '../../model/Producto';
+import { Producto } from '../../model/Producto';
+import { Proveedor } from '../../model/Proveedor';
+import { Ingreso } from '../../model/Ingreso';
+import { ProductosService } from '../../services/productos.service';
+import { CategoriasService } from '../../services/categorias.service';
+import { ProveedoresService } from '../../services/proveedores.service';
+import { IngresosService } from '../../services/ingresos.service';
 import { BuscadorCategoriaComponent } from '../../components/buscador-categoria/buscador-categoria.component';
 import { BuscadorProveedorComponent } from '../../components/buscador-proveedor/buscador-proveedor.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ModalFormularioProductoComponent } from '../../components/modal-formulario-producto/modal-formulario-producto.component';
 import { ModalFormularioIngresoComponent } from '../../components/modal-formulario-ingreso/modal-formulario-ingreso.component';
-import { Proveedor, PROVEEDORES_MOCK } from '../../model/Proveedor';
-import { INGRESOS_MOCK } from '../ingresos/ingresos.component';
-
-interface DetalleIngreso {
-  producto: Producto;
-  cantidad: number;
-}
-
-interface Ingreso {
-  id: number;
-  fecha: Date;
-  proveedor: Proveedor;
-  numeroRemito: string;
-  items: DetalleIngreso[];
-  usuario: string;
-  totalCantidad: number;
-}
 
 @Component({
   selector: 'app-stock',
@@ -80,12 +69,18 @@ export class StockComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['imagen', 'codigoBarra', 'descripcion', 'stockActual', 'precioVenta', 'proveedorNombre', 'acciones'];
   dataSource = new MatTableDataSource<Producto>([]);
 
-  // Mock de datos para pruebas
-  private products: Producto[] = PRODUCTOS_MOCK;
-  private ingresosMock: Ingreso[] = INGRESOS_MOCK;
+  private products: Producto[] = [];
+  categories: string[] = [];
+  providers: Proveedor[] = [];
 
-  categories: string[] = CATEGORIAS_MOCK;
-  providers: Proveedor[] = PROVEEDORES_MOCK;
+  constructor(
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog,
+    private productosService: ProductosService,
+    private categoriasService: CategoriasService,
+    private proveedoresService: ProveedoresService,
+    private ingresosService: IngresosService
+  ) {}
 
   onCategoriaCreated(nombre: string) {
     if (!nombre) return;
@@ -99,17 +94,23 @@ export class StockComponent implements OnInit, AfterViewInit {
     this.filterForm.patchValue({ proveedor: p });
   }
 
-  constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {}
-
   ngOnInit() {
-    this.refreshTable();
+    this.productosService.getAll().subscribe(data => {
+      this.products = data;
+      this.refreshTable();
+    });
+    this.categoriasService.getAll().subscribe(data => {
+      this.categories = data;
+    });
+    this.proveedoresService.getAll().subscribe(data => {
+      this.providers = data;
+    });
     this.setupFilters();
   }
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
-    // Localizar etiquetas del paginador a castellano
     const intl: MatPaginatorIntl = this.paginator._intl as MatPaginatorIntl;
     intl.itemsPerPageLabel = 'Elementos por página';
     intl.nextPageLabel = 'Página siguiente';
@@ -124,15 +125,14 @@ export class StockComponent implements OnInit, AfterViewInit {
       const endIndex = Math.min(length, (page + 1) * pageSize);
       return `${startIndex} - ${endIndex} de ${length}`;
     };
-    // Forzar actualización de etiquetas
-    try { (intl as any).changes.next(); } catch (e) { /* ignore if not available */ }
+    try { (intl as any).changes.next(); } catch (e) { }
   }
 
   setupFilters() {
     this.dataSource.filterPredicate = (data: Producto, filter: string): boolean => {
       const filterValues = JSON.parse(filter);
-      
-      const matchesSearch = !filterValues.search || 
+
+      const matchesSearch = !filterValues.search ||
         data.descripcion.toLowerCase().includes(filterValues.search) ||
         data.codigoInterno.toLowerCase().includes(filterValues.search) ||
         (data.codigoBarra?.includes(filterValues.search) ?? false);
@@ -173,7 +173,6 @@ export class StockComponent implements OnInit, AfterViewInit {
     return 'normal';
   }
 
-  // Lógica de Gestión
   openNewProduct() {
     const dialogRef = this.dialog.open(ModalFormularioProductoComponent, {
       width: '900px',
@@ -199,16 +198,6 @@ export class StockComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Simulación de creación de ingreso y actualización de stock
-        const nuevoIngreso: Ingreso = {
-          ...result,
-          id: Date.now(),
-          fecha: new Date(),
-          usuario: 'matias.admin',
-          totalCantidad: result.items.reduce((acc: number, item: any) => acc + item.cantidad, 0)
-        };
-        this.ingresosMock.unshift(nuevoIngreso);
-        this.dataSource.data = [...this.products];
         this.snackBar.open('Ingreso registrado y stock actualizado con éxito', 'Cerrar', { duration: 3000 });
       }
     });
@@ -224,10 +213,10 @@ export class StockComponent implements OnInit, AfterViewInit {
       if (result) {
         const index = this.products.findIndex(p => p.id === producto.id);
         if (index !== -1) {
-          this.products[index] = { 
-            ...result, 
-            id: producto.id, 
-            stockActual: this.products[index].stockActual 
+          this.products[index] = {
+            ...result,
+            id: producto.id,
+            stockActual: this.products[index].stockActual
           };
           this.refreshTable();
           this.snackBar.open('Producto actualizado', 'Cerrar', { duration: 3000 });

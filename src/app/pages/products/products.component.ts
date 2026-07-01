@@ -13,6 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Producto } from '../../model/Producto';
+import { ProductosService } from '../../services/productos.service';
 
 @Component({
   selector: 'app-products',
@@ -36,19 +37,16 @@ import { Producto } from '../../model/Producto';
   styleUrl: './products.component.scss'
 })
 export class ProductsComponent implements OnInit {
-  products: Producto[] = [
-    { id: 1, codigoInterno: 'P001', descripcion: 'Producto Ejemplo', precioVenta: 150, precioCosto: 100, stockActual: 10, stockMinimo: 5, activo: true, categoria: 'Varios' }
-  ];
-  
-  dataSource = new MatTableDataSource<Producto>(this.products);
+  products: Producto[] = [];
+  dataSource = new MatTableDataSource<Producto>([]);
   displayedColumns: string[] = ['imagen', 'codigoInterno', 'descripcion', 'categoria', 'precios', 'estado', 'acciones'];
-  
+
   productForm: FormGroup;
   showForm = false;
   isEditing = false;
   selectedProductId: number | null = null;
 
-  constructor(private fb: FormBuilder, private snackBar: MatSnackBar) {
+  constructor(private fb: FormBuilder, private snackBar: MatSnackBar, private productosService: ProductosService) {
     this.productForm = this.fb.group({
       codigoInterno: ['', Validators.required],
       codigoBarra: [''],
@@ -63,7 +61,12 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.productosService.getAll().subscribe(data => {
+      this.products = data;
+      this.refreshTable();
+    });
+  }
 
   openNewProduct() {
     this.isEditing = false;
@@ -83,7 +86,7 @@ export class ProductsComponent implements OnInit {
     if (this.productForm.invalid) return;
 
     const productData = this.productForm.value;
-    
+
     if (this.isEditing) {
       const index = this.products.findIndex(p => p.id === this.selectedProductId);
       this.products[index] = { ...productData, id: this.selectedProductId };

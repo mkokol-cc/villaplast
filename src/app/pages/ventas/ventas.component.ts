@@ -18,11 +18,12 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ModalDetalleVentaComponent } from '../../components/modal-detalle-venta/modal-detalle-venta.component';
 import { BuscadorClienteComponent } from '../../components/buscador-cliente/buscador-cliente.component';
-import { CLIENTES_MOCK, Cliente } from '../../model/Cliente';
+import { Cliente } from '../../model/Cliente';
+import { ClientesService } from '../../services/clientes.service';
+import { VentasService } from '../../services/ventas.service';
 
 import { Venta, EstadoVenta } from '../../model/Venta';
 import { MedioPago } from '../../model/Pago';
-import { TipoFactura, EstadoFactura } from '../../model/Factura';
 
 @Component({
   selector: 'app-ventas',
@@ -43,8 +44,8 @@ import { TipoFactura, EstadoFactura } from '../../model/Factura';
     MatDividerModule,
     MatTooltipModule,
     MatSnackBarModule,
-    MatChipsModule
-    , MatDialogModule,
+    MatChipsModule,
+    MatDialogModule,
     BuscadorClienteComponent
   ],
   templateUrl: './ventas.component.html',
@@ -65,46 +66,11 @@ export class VentasComponent implements OnInit {
   estadosVenta = Object.values(EstadoVenta);
   mediosPago = Object.values(MedioPago);
 
-  // Mock de datos para auditoría y visualización
-  private ventasMock: Venta[] = [
-    {
-      id: 4582,
-      fecha: new Date(2026, 5, 15, 14, 20),
-      cliente: { id: 1, razonSocial: 'Juan Pérez', cuitDni: '20-33444555-1', activo: true },
-      items: [
-        { id: 1, producto: { id: 10, descripcion: 'Bolsas Consorcio 60x90', precioVenta: 1200, stockActual: 100, activo: true, codigoInterno: 'BC01' }, cantidad: 5, precioUnitario: 1200, subtotal: 6000 },
-        { id: 2, producto: { id: 11, descripcion: 'Cinta Embalar 48x100', precioVenta: 850, stockActual: 50, activo: true, codigoInterno: 'CE02' }, cantidad: 2, precioUnitario: 850, subtotal: 1700 }
-      ],
-      pagos: [
-        { id: 1, fecha: new Date(), importe: 7700, medioPago: MedioPago.EFECTIVO }
-      ],
-      total: 7700,
-      estado: EstadoVenta.FACTURADA,
-      factura: { 
-        id: 1, numero: 'B-0001-00004582', tipo: TipoFactura.B, cae: '74258963214587', 
-        vencimientoCAE: new Date(2026, 5, 25), fechaEmision: new Date(), estado: EstadoFactura.EMITIDA 
-      }
-    },
-    {
-      id: 4583,
-      fecha: new Date(2026, 5, 16, 9, 15),
-      cliente: { id: 2, razonSocial: 'Papelera Norte', cuitDni: '30-98765432-1', activo: true },
-      items: [
-        { id: 3, producto: { id: 12, descripcion: 'Rollo Cocina x3', precioVenta: 1500, stockActual: 200, activo: true, codigoInterno: 'RC03' }, cantidad: 10, precioUnitario: 1500, subtotal: 15000 }
-      ],
-      pagos: [
-        { id: 2, fecha: new Date(), importe: 5000, medioPago: MedioPago.TRANSFERENCIA },
-        { id: 3, fecha: new Date(), importe: 10000, medioPago: MedioPago.CUENTA_CORRIENTE }
-      ],
-      total: 15000,
-      estado: EstadoVenta.PENDIENTE
-    }
-  ];
-
   dataSource = new MatTableDataSource<Venta>([]);
-  clientes: Cliente[] = CLIENTES_MOCK.slice();
+  clientes: Cliente[] = [];
+  private ventas: Venta[] = [];
 
-  constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {}
+  constructor(private snackBar: MatSnackBar, private dialog: MatDialog, private ventasService: VentasService, private clientesService: ClientesService) {}
 
   onClienteCreated(cliente: Cliente) {
     if (!cliente) return;
@@ -113,8 +79,14 @@ export class VentasComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.dataSource.data = this.ventasMock;
-  } 
+    this.ventasService.getAll().subscribe(data => {
+      this.ventas = data;
+      this.dataSource.data = this.ventas;
+    });
+    this.clientesService.getAll().subscribe(data => {
+      this.clientes = data;
+    });
+  }
 
   openVentaDetails(venta: Venta) {
     this.dialog.open(ModalDetalleVentaComponent, {
@@ -127,7 +99,6 @@ export class VentasComponent implements OnInit {
     return venta.items.reduce((acc, item) => acc + item.cantidad, 0);
   }
 
-  // This method is used in the table to display payment status, not to open a dialog.
   getEstadoPago(venta: Venta): string {
     const pagado = venta.pagos.reduce((acc, p) => acc + p.importe, 0);
     if (pagado >= venta.total) return 'Pagado';
@@ -142,13 +113,11 @@ export class VentasComponent implements OnInit {
   }
 
   applyFilters() {
-    // Lógica de filtrado en el dataSource
     this.snackBar.open('Filtros aplicados', 'Cerrar', { duration: 2000 });
   }
 
   limpiarFiltros() {
     this.filterForm.reset();
-    this.dataSource.data = this.ventasMock;
+    this.dataSource.data = this.ventas;
   }
-
 }
